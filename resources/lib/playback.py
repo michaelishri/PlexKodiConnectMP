@@ -74,8 +74,9 @@ def _pick_playback_server(content_key, plex_type):
                     index = position
                     break
         if index is None:
+            from .windows import selectdialog
             heading = '%s: %s' % (utils.lang(29999), 'Select Plex server')
-            index = utils.dialog('select', heading, options)
+            index = selectdialog.select(heading, options)
         if index is None or index < 0 or index >= len(available):
             return None, None
         chosen = available[index]

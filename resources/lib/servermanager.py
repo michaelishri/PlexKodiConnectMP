@@ -10,6 +10,7 @@ from logging import getLogger
 
 from . import app, plex_functions as PF, utils
 from .app.server import Server
+from .windows import selectdialog
 
 LOG = getLogger('PLEX.servermanager')
 
@@ -70,7 +71,7 @@ def _add_from_plex_tv():
     labels = ['%s (%s)' % (details.get('name'),
                            details.get('baseURL'))
               for details in available]
-    index = utils.dialog('select', 'Add Plex server', labels)
+    index = selectdialog.select('Add Plex server', labels)
     if index is None or index < 0:
         return
     server = _to_server(available[index])
@@ -94,7 +95,7 @@ def _add_manually():
 
 def _remove_server():
     labels = _server_labels()
-    index = utils.dialog('select', 'Remove Plex server', labels)
+    index = selectdialog.select('Remove Plex server', labels)
     if index is None or index < 0:
         return
     server = app.CONN.servers()[index]
@@ -113,7 +114,7 @@ def _remove_server():
 
 def _set_primary():
     labels = _server_labels()
-    index = utils.dialog('select', 'Primary Plex server', labels)
+    index = selectdialog.select('Primary Plex server', labels)
     if index is None or index < 0:
         return
     server = app.CONN.servers()[index]
@@ -131,7 +132,7 @@ def manage():
               'Done')
     while True:
         choices = _server_labels() + labels
-        index = utils.dialog('select', 'Manage Plex servers', choices)
+        index = selectdialog.select('Manage Plex servers', choices)
         if index is None or index < 0 or index >= len(choices):
             return
         if index < len(app.CONN.servers()):

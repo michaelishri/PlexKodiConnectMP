@@ -23,7 +23,8 @@ SETTINGS.update({
     'https': 'false',
 })
 
-from resources.lib import app, playback, utils  # noqa: E402
+from resources.lib import app, playback  # noqa: E402
+from resources.lib.windows import selectdialog  # noqa: E402
 from resources.lib.app.server import Server  # noqa: E402
 
 
@@ -54,17 +55,16 @@ class TestPlaybackPicker(unittest.TestCase):
 
     def setUp(self):
         self.original_db = playback.PlexDB
-        self.original_dialog = utils.dialog
         playback.PlexDB = FakePlexDB
         playback.PLAYBACK_SERVERS.clear()
 
     def tearDown(self):
         playback.PlexDB = self.original_db
-        utils.dialog = self.original_dialog
 
     def test_single_source_is_used_without_dialog(self):
         FakePlexDB.sources = [('server-B', 777, 1, 1, 100)]
-        utils.dialog = lambda *args, **kwargs: self.fail('dialog must not show')
+        selectdialog.select = lambda *args, **kwargs: self.fail(
+            'dialog must not show')
         self.assertEqual(playback._pick_playback_server('key', 'movie'),
                          ('server-B', 777))
 
@@ -73,7 +73,7 @@ class TestPlaybackPicker(unittest.TestCase):
             ('server-A', 123, 1, 1, 100),
             ('server-B', 777, 2, 1, 100),
         ]
-        utils.dialog = lambda *args, **kwargs: 1
+        selectdialog.select = lambda *args, **kwargs: 1
         self.assertEqual(playback._pick_playback_server('key', 'movie'),
                          ('server-B', 777))
 
@@ -82,7 +82,7 @@ class TestPlaybackPicker(unittest.TestCase):
             ('server-A', 123, 1, 1, 100),
             ('server-B', 777, 2, 1, 100),
         ]
-        utils.dialog = lambda *args, **kwargs: -1
+        selectdialog.select = lambda *args, **kwargs: None
         self.assertEqual(playback._pick_playback_server('key', 'movie'),
                          (None, None))
 
@@ -93,7 +93,8 @@ class TestPlaybackPicker(unittest.TestCase):
                 ('server-A', 123, 1, 1, 100),
                 ('server-B', 777, 2, 1, 100),
             ]
-            utils.dialog = lambda *args, **kwargs: self.fail('dialog must not show')
+            selectdialog.select = lambda *args, **kwargs: self.fail(
+            'dialog must not show')
             self.assertEqual(playback._pick_playback_server('key', 'movie'),
                              ('server-A', 123))
         finally:

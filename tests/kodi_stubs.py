@@ -58,6 +58,90 @@ class FakePlayer(object):
         return ''
 
 
+class FakeControl(object):
+    def __init__(self, *args, **kwargs):
+        self.items = []
+
+    def addItem(self, item):
+        self.items.append(item)
+
+    def addItems(self, items):
+        self.items.extend(items)
+
+    def reset(self):
+        self.items = []
+
+    def getListItem(self, position):
+        return self.items[position]
+
+    def selectItem(self, position):
+        pass
+
+    def setPosition(self, *args):
+        pass
+
+    def setHeight(self, *args):
+        pass
+
+
+class FakeListItem(object):
+    def __init__(self, label='', label2='', path='', *args, **kwargs):
+        self.label = label
+        self.label2 = label2
+        self.path = path
+        self.properties = {}
+
+    def setProperty(self, key, value):
+        self.properties[key] = str(value)
+
+    def getProperty(self, key):
+        return self.properties.get(key, '')
+
+    def setLabel(self, label):
+        self.label = label
+
+    def setLabel2(self, label):
+        self.label2 = label
+
+    def setPath(self, path):
+        self.path = path
+
+    def setArt(self, art):
+        pass
+
+    def setBoolProperty(self, key, value):
+        self.setProperty(key, '1' if value else '')
+
+
+class FakeWindowXML(object):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def getControl(self, control_id):
+        return FakeControl()
+
+    def setFocusId(self, control_id):
+        pass
+
+    def setProperty(self, key, value):
+        WINDOW_PROPS[key] = str(value)
+
+    def close(self):
+        pass
+
+    def show(self):
+        pass
+
+    def doModal(self):
+        pass
+
+    def wait(self):
+        pass
+
+    def getListItem(self, position):
+        return None
+
+
 class FakeWindow(object):
     def __init__(self, *args, **kwargs):
         pass
@@ -115,14 +199,17 @@ def install():
     xbmc.LOGINFO = 1
     xbmc.LOGWARNING = 2
     xbmc.LOGERROR = 3
+    xbmc.LOGNOTICE = 4
 
     xbmcaddon = types.ModuleType('xbmcaddon')
     xbmcaddon.Addon = FakeAddon
 
     xbmcgui = types.ModuleType('xbmcgui')
     xbmcgui.Window = FakeWindow
+    xbmcgui.WindowXML = FakeWindowXML
+    xbmcgui.WindowXMLDialog = FakeWindowXML
     xbmcgui.Dialog = object
-    xbmcgui.ListItem = object
+    xbmcgui.ListItem = FakeListItem
     xbmcgui.ACTION_PREVIOUS_MENU = 10
     xbmcgui.ACTION_NAV_BACK = 92
 

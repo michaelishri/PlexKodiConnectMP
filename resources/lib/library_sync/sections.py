@@ -597,10 +597,10 @@ def _choose_libraries(sections):
     # Don't ask the user again for this PMS even if user cancel the sync dialog
     _mark_server_asked(app.CONN.machine_identifier)
     # "Select Plex libraries to sync"
-    selected_sections = xbmcgui.Dialog().multiselect(utils.lang(30524),
-                                                     selectable_sections,
-                                                     preselect=preselected,
-                                                     useDetails=False)
+    from ..windows import selectdialog
+    selected_sections = selectdialog.select_multi(utils.lang(30524),
+                                                  selectable_sections,
+                                                  selected=preselected)
     if selected_sections is None:
         LOG.info('User chose not to select which libraries to sync')
         return False

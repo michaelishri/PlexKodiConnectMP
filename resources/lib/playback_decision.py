@@ -431,8 +431,9 @@ def setup_transcoding_audio_subtitle_prefs(mediastreams, part_id):
         if utils.settings('bestQuality') == 'true' and audio_default is not None:
             resp = audio_default
         else:
-            resp = utils.dialog('select', utils.lang(33013), audio_streams)
-            if resp == -1:
+            from .windows import selectdialog
+            resp = selectdialog.select(utils.lang(33013), audio_streams)
+            if resp is None or resp < 0:
                 LOG.info('User aborted dialog to select audio stream')
                 return
         args = {
@@ -454,8 +455,9 @@ def setup_transcoding_audio_subtitle_prefs(mediastreams, part_id):
         if utils.settings('bestQuality') == 'true' and subtitle_default is not None:
             resp = subtitle_default
         else:
-            resp = utils.dialog('select', utils.lang(33014), subtitle_streams)
-            if resp == -1:
+            from .windows import selectdialog
+            resp = selectdialog.select(utils.lang(33014), subtitle_streams)
+            if resp is None or resp < 0:
                 LOG.info('User aborted dialog to select subtitle stream')
                 return
             elif resp == 0:

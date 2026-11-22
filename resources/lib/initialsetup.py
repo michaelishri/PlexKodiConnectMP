@@ -406,8 +406,9 @@ class InitialSetup(object):
                 # Let user pick server from a list
                 # Close the PKC info "Searching for PMS"
                 executebuiltin("Dialog.Close(all, true)")
-                resp = utils.dialog('select', utils.lang(39012), dialoglist)
-                if resp == -1:
+                from .windows import selectdialog
+                resp = selectdialog.select(utils.lang(39012), dialoglist)
+                if resp is None or resp < 0:
                     # User cancelled
                     return
 

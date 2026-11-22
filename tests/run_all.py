@@ -7,7 +7,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TESTS = ['test_multiserver.py', 'test_dedup_db.py', 'test_playback_picker.py',
-         'test_repo_build.py', 'test_skin_paths.py']
+         'test_repo_build.py', 'test_skin_paths.py', 'test_select_dialog.py']
 
 if __name__ == '__main__':
     failed = False
