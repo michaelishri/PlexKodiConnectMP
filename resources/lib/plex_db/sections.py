@@ -2,11 +2,13 @@
 # -*- coding: utf-8 -*-
 
 class Sections(object):
-    def all_sections(self):
+    def all_sections(self, server_id=None):
         """
-        Returns an iterator for all sections
+        Returns an iterator for all sections of one Plex server.
         """
-        self.cursor.execute('SELECT * FROM sections')
+        server_id = self._server_id(server_id)
+        self.cursor.execute('SELECT * FROM sections WHERE server_id = ?',
+                            (server_id, ))
         return (self.entry_to_section(x) for x in self.cursor)
 
     def section(self, section_id):
@@ -33,7 +35,8 @@ class Sections(object):
             'plex_type': entry[2],
             'kodi_tagid': entry[3],
             'sync_to_kodi': entry[4] == 1,
-            'last_sync': entry[5]
+            'last_sync': entry[5],
+            'server_id': entry[6] if len(entry) > 6 else None,
         }
 
     def section_id_by_name(self, section_name):
@@ -60,8 +63,9 @@ class Sections(object):
                 plex_type,
                 kodi_tagid,
                 sync_to_kodi,
-                last_sync)
-            VALUES (?, ?, ?, ?, ?, ?)
+                last_sync,
+                server_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             '''
         self.cursor.execute(query,
                             (section_id,
@@ -69,7 +73,8 @@ class Sections(object):
                              plex_type,
                              kodi_tagid,
                              sync_to_kodi,
-                             last_sync))
+                             last_sync,
+                             self._server_id()))
 
     def update_section(self, section_id, section_name):
         """

@@ -301,11 +301,21 @@ class FullSync(common.LibrarySyncMixin, bg.KillableThread):
     @utils.log_time
     def _run(self):
         try:
-            # Get latest Plex libraries and build playlist and video node files
-            if self.should_cancel() or not sections.sync_from_pms(self):
+            servers = app.CONN.enabled_servers()
+            if not servers:
+                LOG.error('No Plex servers configured - cannot sync')
                 return
-            self.copy_plex_db()
-            self.full_library_sync()
+            for server in servers:
+                if self.should_cancel():
+                    return
+                with app.using_server(server.machine_identifier):
+                    LOG.info('Full sync of Plex server %s (%s)', server.name,
+                             server.machine_identifier)
+                    # Get libraries and build video node files for this PMS
+                    if not sections.sync_from_pms(self):
+                        continue
+                    self.copy_plex_db()
+                    self.full_library_sync()
         finally:
             common.update_kodi_library(video=True, music=True)
             if self.dialog:

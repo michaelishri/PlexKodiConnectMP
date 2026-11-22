@@ -35,6 +35,33 @@ if not path_ops.exists(PLAYLISTS_PATH):
 WINDOW_ARGS = ('index', 'title', 'id', 'path', 'type', 'content', 'artwork')
 
 
+def _asked_servers():
+    """machineIdentifiers for which the library-selection dialog was shown."""
+    value = utils.settings('sections_asked_for_machine_identifier') or ''
+    return set(item for item in value.split(',') if item)
+
+
+def _mark_server_asked(machine_identifier):
+    if not machine_identifier:
+        return
+    servers = _asked_servers()
+    servers.add(machine_identifier)
+    utils.settings('sections_asked_for_machine_identifier',
+                   value=','.join(sorted(servers)))
+
+
+def _server_suffix():
+    """
+    Short suffix for Kodi node/playlist files so two Plex servers with the
+    same section ids do not overwrite each other's browse nodes.
+    """
+    if len(app.CONN.servers()) < 2:
+        return ''
+    from hashlib import md5
+    server_id = app.CONN.current_id or ''
+    return '-%s' % md5(server_id.encode('utf-8')).hexdigest()[:6]
+
+
 class Section(object):
     """
     Setting the attribute section_type will automatically set content and
@@ -126,9 +153,11 @@ class Section(object):
     @section_id.setter
     def section_id(self, value):
         self._section_id = value
-        self._path = path_ops.path.join(LIBRARY_PATH, 'Plex-%s' % value, '')
-        self._playlist_path = path_ops.path.join(PLAYLISTS_PATH,
-                                                 'Plex %s.xsp' % value)
+        suffix = _server_suffix()
+        self._path = path_ops.path.join(LIBRARY_PATH,
+                                        'Plex-%s%s' % (value, suffix), '')
+        self._playlist_path = path_ops.path.join(
+            PLAYLISTS_PATH, 'Plex %s%s.xsp' % (value, suffix))
 
     @property
     def section_type(self):
@@ -162,7 +191,7 @@ class Section(object):
     @index.setter
     def index(self, value):
         self._index = value
-        self._node = 'Plex.nodes.%s' % value
+        self._node = 'Plex.nodes.%s%s' % (value, _server_suffix())
 
     @property
     def node(self):
@@ -566,8 +595,7 @@ def _choose_libraries(sections):
                 preselected.append(index)
             index += 1
     # Don't ask the user again for this PMS even if user cancel the sync dialog
-    utils.settings('sections_asked_for_machine_identifier',
-                   value=app.CONN.machine_identifier)
+    _mark_server_asked(app.CONN.machine_identifier)
     # "Select Plex libraries to sync"
     selected_sections = xbmcgui.Dialog().multiselect(utils.lang(30524),
                                                      selectable_sections,
@@ -654,7 +682,7 @@ def _sync_from_pms(pick_libraries):
             old_sections.append(Section(section_db_element=section_db))
     # Update our latest PMS sections with info saved in the PMS DB
     _retrieve_old_settings(sections, old_sections)
-    if (app.CONN.machine_identifier != utils.settings('sections_asked_for_machine_identifier') or
+    if (app.CONN.machine_identifier not in _asked_servers() or
             pick_libraries):
         if not pick_libraries:
             LOG.info('First time connecting to this PMS, choosing libraries')

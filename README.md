@@ -72,6 +72,26 @@ Some people argue that PKC is 'hacky' because of the way it directly accesses th
     + Lithuanian, thanks @egidusm
     + Korean, thanks @so-o-bima
 
+### Multiple Plex servers (experimental)
+
+PKC can sync several Plex Media Servers under one Plex account into a single,
+deduplicated Kodi library. Items that exist on more than one server are stored
+only once (matched by IMDb/TVDB/TMDB/AniDB id, falling back to the Plex guid);
+at play time PKC shows a dialog listing the servers that have the item.
+
+- Open **Settings → Plex Media Server → Manage Plex servers** to add, remove
+  or change the primary server. The "Choose Plex Server from a list" action
+  now adds a server instead of replacing the configured one.
+- Servers are stored in `servers.json` in PKC's addon profile. The legacy
+  settings continue to mirror the primary server.
+- Each Plex server is synced in turn. Kodi tags are shared by library name so
+  the libraries merge; browse nodes are namespaced per server.
+- **Direct paths are disabled while more than one server is configured** so
+  that a single Kodi path can resolve to the chosen server at play time.
+  Watched/resume state is shared between sources.
+- Upgrading from a single-server install migrates `plex.db` automatically and
+  triggers one full resync.
+
 ### Additional Artwork
 PKC uses additional artwork for free from [TheMovieDB](https://www.themoviedb.org). Many thanks for lettings us use the API, guys!
 [![Logo of TheMovieDB](themoviedb.png)](https://www.themoviedb.org)

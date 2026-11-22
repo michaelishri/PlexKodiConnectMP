@@ -16,7 +16,7 @@ class Account(object):
         self.plex_token = None
         # Personal access token per specific user and PMS
         # As a rule of thumb, always use this token!
-        self.pms_token = None
+        self.pms_tokens = {}
         self.avatar = None
         self.myplexlogin = None
         self.restricted_user = None
@@ -28,6 +28,33 @@ class Account(object):
         else:
             utils.window('plex_authenticated', clear=True)
             self.load()
+
+    @property
+    def current_server_id(self):
+        """machineIdentifier of the server in the current context."""
+        from .. import app
+        if app.CONN is not None:
+            return app.CONN.current_id
+        return None
+
+    @property
+    def pms_token(self):
+        """Token of the active user for the server in the current context."""
+        from .. import app
+        server_id = self.current_server_id
+        if server_id in self.pms_tokens:
+            return self.pms_tokens[server_id]
+        if app.CONN is not None and app.CONN.registry.primary_id in self.pms_tokens:
+            return self.pms_tokens[app.CONN.registry.primary_id]
+        return self.pms_tokens.get(None)
+
+    @pms_token.setter
+    def pms_token(self, value):
+        server_id = self.current_server_id
+        if server_id is None:
+            self.pms_tokens[None] = value
+        else:
+            self.pms_tokens[server_id] = value
 
     def set_authenticated(self):
         self.authenticated = True

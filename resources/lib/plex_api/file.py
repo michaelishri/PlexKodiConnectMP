@@ -60,6 +60,11 @@ class File(object):
         """
         direct_paths = app.SYNC.direct_paths if direct_paths is None \
             else direct_paths
+        # A single UNC path cannot represent an item that exists on
+        # several Plex servers. Use add-on paths so playback can pick
+        # the right server at run time.
+        if len(app.CONN.servers()) > 1:
+            direct_paths = False
         if (not direct_paths or force_addon or
                 self.plex_type == v.PLEX_TYPE_CLIP):
             if self.plex_type == v.PLEX_TYPE_SONG:
@@ -78,12 +83,18 @@ class File(object):
                     filename = filename.rsplit('/', 1)[1]
                 else:
                     filename = filename.rsplit('\\', 1)[1]
-                entirepath = ('%s?mode=play&plex_id=%s&plex_type=%s&filename=%s'
-                        % (path, self.plex_id, self.plex_type, filename))
+            # A server-independent content key keeps the Kodi path identical
+            # across servers; playback picks the actual server later.
+            if self.content_key:
+                params = ('mode=play&plex_type=%s&content_key=%s'
+                          % (self.plex_type,
+                             utils.quote_plus(self.content_key)))
             else:
-                # E.g. clips or albums
-                entirepath = ('%s?mode=play&plex_id=%s&plex_type=%s'
-                        % (path, self.plex_id, self.plex_type))
+                params = ('mode=play&plex_id=%s&plex_type=%s'
+                          % (self.plex_id, self.plex_type))
+            if filename:
+                params += '&filename=%s' % filename
+            entirepath = '%s?%s' % (path, params)
             # For Kodi DB, we need to safe the ENTIRE path for filenames
             filename = entirepath
         else:

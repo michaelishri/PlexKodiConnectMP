@@ -183,38 +183,40 @@ class Service(object):
         LOG.info('User has been logged out')
 
     def choose_pms_server(self, manual=False):
-        LOG.info("Choosing PMS server requested, starting")
+        """
+        Add another Plex server to the registry. The existing library is kept;
+        a full sync merges the new server's items and deduplicates them.
+        """
+        LOG.info('Choosing PMS server requested, starting')
         if manual:
-            if not self.setup.enter_new_pms_address():
-                return False
+            details = self.setup.enter_new_pms_address()
         else:
-            server = self.setup.pick_pms(showDialog=True)
-            if not server:
-                LOG.info('We did not connect to a new PMS, aborting')
-                return False
-            LOG.info("User chose server %s with url %s",
-                     server['name'], server['baseURL'])
-            if (server['machineIdentifier'] == app.CONN.machine_identifier and
-                    server['baseURL'] == app.CONN.server):
-                LOG.info('User chose old PMS to connect to')
-                return False
-            # Save changes to to file
-            self.setup.save_pms_settings(server['baseURL'], server['token'])
-            self.setup.write_pms_to_settings(server)
-        self.log_out()
-        # Wipe Kodi and Plex database as well as playlists and video nodes
-        utils.wipe_database()
-        app.CONN.load()
-        app.ACCOUNT.reset_session()
-        app.ACCOUNT.set_unauthenticated()
-        self.server_has_been_online = False
-        self.welcome_msg = False
-        # Force a full sync of all items
-        library_sync.force_full_sync()
+            details = self.setup.pick_pms(showDialog=True)
+        if not details:
+            LOG.info('No PMS selected, aborting')
+            return False
+
+        from .app.server import Server
+        server = Server(
+            machine_identifier=details.get('machineIdentifier'),
+            name=details.get('name'),
+            host=details.get('ip'),
+            port=details.get('port'),
+            https=details.get('scheme') == 'https',
+            token=details.get('token'),
+            owned=details.get('owned', True))
+        if not server.machine_identifier or not server.host:
+            LOG.error('Incomplete PMS details: %s', details)
+            return False
+        if server.machine_identifier in app.CONN.registry:
+            LOG.info('PMS %s is already configured', server.machine_identifier)
+            return False
+        app.CONN.add_server(server)
+        self.setup.save_pms_settings(details['baseURL'], details.get('token'))
         app.SYNC.run_lib_scan = 'full'
-        # Enable the main loop to continue
+        library_sync.force_full_sync()
         app.APP.suspend = False
-        LOG.info("Choosing new PMS complete")
+        LOG.info('Added PMS %s - full sync requested', server.machine_identifier)
         return True
 
     def switch_plex_user(self):
@@ -312,53 +314,8 @@ class Service(object):
         self.auth_running = False
 
     def enter_new_pms_address(self):
-        server = self.setup.enter_new_pms_address()
-        if not server:
-            return
-        self.log_out()
-        # Save changes to to file
-        self.setup.save_pms_settings(server['baseURL'], server['token'])
-        self.setup.write_pms_to_settings(server)
-        # Wipe Kodi and Plex database as well as playlists and video nodes
-        utils.wipe_database()
-        app.CONN.load()
-        app.ACCOUNT.reset_session()
-        app.ACCOUNT.set_unauthenticated()
-        self.server_has_been_online = False
-        self.welcome_msg = False
-        # Force a full sync of all items
-        library_sync.force_full_sync()
-        app.SYNC.run_lib_scan = 'full'
-        # Enable the main loop to continue
-        app.APP.suspend = False
-        LOG.info("Entering PMS address complete")
-        return True
-
-    def choose_plex_libraries(self):
-        if not app.CONN.online:
-            LOG.error('PMS not online to choose libraries')
-            # "{0} offline"
-            utils.dialog('notification',
-                         utils.lang(29999),
-                         utils.lang(39213).format(app.CONN.server_name or ''),
-                         icon='{plex}')
-            return
-        if not app.ACCOUNT.authenticated:
-            LOG.error('Not yet authenticated for PMS to choose libraries')
-            # "Unauthorized for PMS"
-            utils.dialog('notification', utils.lang(29999), utils.lang(30017))
-            return
-        app.APP.suspend_threads()
-        from .library_sync import sections
-        try:
-            # Get newest sections from the PMS
-            if not sections.sync_from_pms(self, pick_libraries=True):
-                return
-            # Force a full sync of all items
-            library_sync.force_full_sync()
-            app.SYNC.run_lib_scan = 'full'
-        finally:
-            app.APP.resume_threads()
+        """Legacy action - now adds another server instead of replacing it."""
+        return self.choose_pms_server(manual=True)
 
     def reset_playlists_and_nodes(self):
         """
@@ -531,6 +488,10 @@ class Service(object):
                 elif plex_command == 'choose_pms_server':
                     task = backgroundthread.FunctionAsTask(
                         self.choose_pms_server, None)
+                elif plex_command == 'manage_servers':
+                    from . import servermanager
+                    task = backgroundthread.FunctionAsTask(
+                        servermanager.manage, None)
                 elif plex_command == 'switch_plex_user':
                     task = backgroundthread.FunctionAsTask(
                         self.switch_plex_user, None)

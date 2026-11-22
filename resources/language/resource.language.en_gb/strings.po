@@ -1182,6 +1182,11 @@ msgctxt "#39050"
 msgid "Choose Plex Server from a list"
 msgstr ""
 
+# PKC Settings - Connection (multi-server)
+msgctxt "#39450"
+msgid "Manage Plex servers"
+msgstr ""
+
 # PKC Settings - Sync
 msgctxt "#39051"
 msgid "Wait before sync new/changed PMS item [s]"

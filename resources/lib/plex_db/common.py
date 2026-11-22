@@ -1,8 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from logging import getLogger
 from threading import Lock
 
-from .. import db, variables as v
+from .. import db, utils, variables as v
+from . import schema
+
+LOG = getLogger('PLEX.plex_db')
 
 PLEXDB_LOCK = Lock()
 
@@ -46,51 +50,176 @@ class PlexDBBase(object):
             if self.lock:
                 PLEXDB_LOCK.release()
 
-    def is_recorded(self, plex_id, plex_type):
+    def is_recorded(self, plex_id, plex_type, server_id=None):
         """
-        FAST method to check whether a plex_id has already been recorded
+        FAST method to check whether a ratingKey has been recorded for the
+        current Plex server.
         """
-        self.cursor.execute('SELECT plex_id FROM %s WHERE plex_id = ?' % plex_type,
-                            (plex_id, ))
+        server_id = self._server_id(server_id)
+        self.cursor.execute(
+            'SELECT plex_id FROM %s WHERE server_id = ? AND plex_id = ?'
+            % self._table(plex_type), (server_id, plex_id))
         return self.cursor.fetchone() is not None
 
-    def item_by_id(self, plex_id, plex_type=None):
+    def item_by_id(self, plex_id, plex_type=None, server_id=None):
         """
-        Returns the item for plex_id or None.
-        Supply with the correct plex_type to speed up lookup
+        Returns the item for plex_id on one Plex server, or None.
+        Supply plex_type to speed up lookup.
         """
-        answ = None
-        if plex_type == v.PLEX_TYPE_MOVIE:
-            answ = self.movie(plex_id)
-        elif plex_type == v.PLEX_TYPE_EPISODE:
-            answ = self.episode(plex_id)
-        elif plex_type == v.PLEX_TYPE_SHOW:
-            answ = self.show(plex_id)
-        elif plex_type == v.PLEX_TYPE_SEASON:
-            answ = self.season(plex_id)
-        elif plex_type == v.PLEX_TYPE_SONG:
-            answ = self.song(plex_id)
-        elif plex_type == v.PLEX_TYPE_ALBUM:
-            answ = self.album(plex_id)
-        elif plex_type == v.PLEX_TYPE_ARTIST:
-            answ = self.artist(plex_id)
-        elif plex_type in (v.PLEX_TYPE_CLIP, v.PLEX_TYPE_PHOTO, v.PLEX_TYPE_PLAYLIST):
-            # Will never be synched to Kodi
-            pass
-        elif plex_type is None:
-            # SLOW - lookup plex_id in all our tables
+        server_id = self._server_id(server_id)
+        if plex_type is None:
             for kind in (v.PLEX_TYPE_MOVIE,
                          v.PLEX_TYPE_EPISODE,
                          v.PLEX_TYPE_SHOW,
                          v.PLEX_TYPE_SEASON,
-                         'song',  # darn
+                         v.PLEX_TYPE_SONG,
                          v.PLEX_TYPE_ALBUM,
                          v.PLEX_TYPE_ARTIST):
-                method = getattr(self, kind)
-                answ = method(plex_id)
+                answ = self.item_by_source(server_id, plex_id, kind)
                 if answ:
-                    break
-        return answ
+                    return answ
+            return None
+        if plex_type in (v.PLEX_TYPE_CLIP, v.PLEX_TYPE_PHOTO,
+                         v.PLEX_TYPE_PLAYLIST):
+            return None
+        return self.item_by_source(server_id, plex_id, plex_type)
+
+    # ------------------------------------------------------- multi-server
+    @staticmethod
+    def _table(plex_type):
+        return 'track' if plex_type == v.PLEX_TYPE_SONG else plex_type
+
+    @staticmethod
+    def _server_id(server_id=None):
+        if server_id is not None:
+            return server_id
+        from .. import app
+        return app.current_server() or ''
+
+    def is_recorded_on_server(self, plex_id, plex_type, server_id=None):
+        """Check a ratingKey within one specific Plex server."""
+        table = self._table(plex_type)
+        self.cursor.execute(
+            'SELECT plex_id FROM %s WHERE server_id = ? AND plex_id = ?'
+            % table, (self._server_id(server_id), plex_id))
+        return self.cursor.fetchone() is not None
+
+    def item_by_source(self, server_id, plex_id, plex_type):
+        """Return the row for a (server, ratingKey) pair."""
+        table = self._table(plex_type)
+        entry_method = getattr(self, 'entry_to_%s' % table, None)
+        self.cursor.execute(
+            'SELECT * FROM %s WHERE server_id = ? AND plex_id = ? LIMIT 1'
+            % table, (self._server_id(server_id), plex_id))
+        row = self.cursor.fetchone()
+        if row is None or entry_method is None:
+            return row
+        return entry_method(row)
+
+    def item_by_content(self, content_key, plex_type, server_id=None):
+        """
+        Return a row for a content key, preferring the current/primary server.
+        Because all sources of one content item share a kodi_id, any row is
+        enough to identify the Kodi library item.
+        """
+        table = self._table(plex_type)
+        wanted = self._server_id(server_id)
+        self.cursor.execute(
+            'SELECT * FROM %s WHERE content_key = ? '
+            'ORDER BY (server_id = ?) DESC LIMIT 1' % table,
+            (content_key, wanted))
+        row = self.cursor.fetchone()
+        if row is None:
+            return None
+        entry_method = getattr(self, 'entry_to_%s' % table, None)
+        return entry_method(row) if entry_method else row
+
+    def sources_by_content(self, content_key, plex_type):
+        """All (server_id, plex_id) rows that carry the same content."""
+        table = self._table(plex_type)
+        self.cursor.execute(
+            'SELECT server_id, plex_id, checksum, section_id, last_sync '
+            'FROM %s WHERE content_key = ?' % table, (content_key, ))
+        return self.cursor.fetchall()
+
+    def content_key_by_id(self, plex_id, plex_type, server_id=None):
+        table = self._table(plex_type)
+        self.cursor.execute(
+            'SELECT content_key FROM %s WHERE server_id = ? AND plex_id = ?'
+            % table, (self._server_id(server_id), plex_id))
+        row = self.cursor.fetchone()
+        return row[0] if row else None
+
+    def upsert_source(self, server_id, plex_id, plex_type, content_key,
+                      checksum=None, section_id=None, kodi_id=None, **kwargs):
+        """
+        Insert or update one server's copy of an item. Returns the kodi_id
+        that should be used for the canonical Kodi item.
+        """
+        table = self._table(plex_type)
+        provided = {
+            'server_id': self._server_id(server_id),
+            'plex_id': plex_id,
+            'content_key': content_key,
+        }
+        for key in ('checksum', 'section_id', 'kodi_id', 'plex_guid',
+                    'kodi_fileid', 'kodi_pathid', 'kodi_fileid_2',
+                    'show_id', 'parent_id', 'fanart_synced', 'last_sync',
+                    'trailer_synced'):
+            if key == 'checksum':
+                value = checksum
+            elif key == 'section_id':
+                value = section_id
+            elif key == 'kodi_id':
+                value = kodi_id
+            else:
+                value = kwargs.get(key)
+            if value is not None:
+                provided[key] = value
+        columns = [key for key in provided if key in schema.COLUMNS[table]]
+        values = [provided[key] for key in columns]
+        updates = ', '.join('%s = excluded.%s' % (column, column)
+                            for column in columns
+                            if column not in ('server_id', 'plex_id'))
+        query = ('INSERT INTO %s (%s) VALUES (%s) '
+                 'ON CONFLICT(server_id, plex_id) DO UPDATE SET %s'
+                 % (table, ', '.join(columns),
+                    ', '.join('?' for _ in columns), updates))
+        self.cursor.execute(query, values)
+        return kodi_id
+
+    def remove_source(self, server_id, plex_id, plex_type):
+        table = self._table(plex_type)
+        self.cursor.execute(
+            'DELETE FROM %s WHERE server_id = ? AND plex_id = ?' % table,
+            (self._server_id(server_id), plex_id))
+
+    def remove_sources_for_server(self, server_id):
+        """Drop every item sourced from one Plex server."""
+        existing = set(row[0] for row in self.cursor.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table'"))
+        for table in schema.COLUMNS:
+            if table not in existing:
+                continue
+            self.cursor.execute('DELETE FROM %s WHERE server_id = ?' % table,
+                                (self._server_id(server_id), ))
+
+    def source_count(self, content_key, plex_type):
+        table = self._table(plex_type)
+        self.cursor.execute('SELECT COUNT(*) FROM %s WHERE content_key = ?'
+                            % table, (content_key, ))
+        return self.cursor.fetchone()[0]
+
+    def set_kodi_id(self, content_key, plex_type, kodi_id, server_id=None):
+        """Share one Kodi item id between all sources of the same content."""
+        table = self._table(plex_type)
+        self.cursor.execute(
+            'UPDATE %s SET kodi_id = ? WHERE content_key = ?' % table,
+            (kodi_id, content_key))
+
+    def configured_servers(self):
+        self.cursor.execute('SELECT * FROM server')
+        return self.cursor.fetchall()
 
     def items_by_guid(self, plex_guid, plex_type=None):
         """
@@ -138,23 +267,25 @@ class PlexDBBase(object):
         ''' % (plex_type, limit)
         return (x[0] for x in self.cursor.execute(query, (last_sync, )))
 
-    def checksum(self, plex_id, plex_type):
+    def checksum(self, plex_id, plex_type, server_id=None):
         """
-        Returns the checksum for plex_id
+        Returns the checksum for plex_id on the current Plex server.
         """
-        self.cursor.execute('SELECT checksum FROM %s WHERE plex_id = ? LIMIT 1' % plex_type,
-                            (plex_id, ))
+        server_id = self._server_id(server_id)
+        self.cursor.execute(
+            'SELECT checksum FROM %s WHERE server_id = ? AND plex_id = ? '
+            'LIMIT 1' % self._table(plex_type), (server_id, plex_id))
         try:
             return self.cursor.fetchone()[0]
         except TypeError:
             pass
 
-    def update_last_sync(self, plex_id, plex_type, last_sync):
-        """
-        Sets a new timestamp for plex_id
-        """
-        self.cursor.execute('UPDATE %s SET last_sync = ? WHERE plex_id = ?' % plex_type,
-                            (last_sync, plex_id))
+    def update_last_sync(self, plex_id, plex_type, last_sync, server_id=None):
+        """Sets a new timestamp for plex_id on one Plex server."""
+        server_id = self._server_id(server_id)
+        self.cursor.execute(
+            'UPDATE %s SET last_sync = ? WHERE server_id = ? AND plex_id = ?'
+            % self._table(plex_type), (last_sync, server_id, plex_id))
 
     def remove(self, plex_id, plex_type):
         """
@@ -225,145 +356,51 @@ class PlexDBBase(object):
 
 
 def initialize():
-        """
-        Run once upon PKC startup to verify that plex db exists.
-        """
-        with PlexDBBase() as plexdb:
-            plexdb.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS version(
-                    idVersion TEXT PRIMARY KEY)
-            ''')
-            plexdb.cursor.execute('''
-                INSERT OR REPLACE INTO version(idVersion)
-                VALUES (?)
-            ''', (v.ADDON_VERSION, ))
-            plexdb.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS sections(
-                    section_id INTEGER PRIMARY KEY,
-                    section_name TEXT,
-                    plex_type TEXT,
-                    kodi_tagid INTEGER,
-                    sync_to_kodi INTEGER,
-                    last_sync INTEGER)
-            ''')
-            plexdb.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS movie(
-                    plex_id INTEGER PRIMARY KEY,
-                    plex_guid TEXT,
-                    checksum INTEGER UNIQUE,
-                    section_id INTEGER,
-                    kodi_id INTEGER,
-                    kodi_fileid INTEGER,
-                    kodi_pathid INTEGER,
-                    fanart_synced INTEGER,
-                    trailer_synced BOOLEAN,
-                    last_sync INTEGER)
-            ''')
-            plexdb.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS show(
-                    plex_id INTEGER PRIMARY KEY,
-                    plex_guid TEXT,
-                    checksum INTEGER UNIQUE,
-                    section_id INTEGER,
-                    kodi_id INTEGER,
-                    kodi_pathid INTEGER,
-                    fanart_synced INTEGER,
-                    last_sync INTEGER)
-            ''')
-            plexdb.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS season(
-                    plex_id INTEGER PRIMARY KEY,
-                    plex_guid TEXT,
-                    checksum INTEGER UNIQUE,
-                    section_id INTEGER,
-                    show_id INTEGER,
-                    parent_id INTEGER,
-                    kodi_id INTEGER,
-                    fanart_synced INTEGER,
-                    last_sync INTEGER)
-            ''')
-            plexdb.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS episode(
-                    plex_id INTEGER PRIMARY KEY,
-                    plex_guid TEXT,
-                    checksum INTEGER UNIQUE,
-                    section_id INTEGER,
-                    show_id INTEGER,
-                    grandparent_id INTEGER,
-                    season_id INTEGER,
-                    parent_id INTEGER,
-                    kodi_id INTEGER,
-                    kodi_fileid INTEGER,
-                    kodi_fileid_2 INTEGER,
-                    kodi_pathid INTEGER,
-                    fanart_synced INTEGER,
-                    last_sync INTEGER)
-            ''')
-            plexdb.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS artist(
-                    plex_id INTEGER PRIMARY KEY,
-                    checksum INTEGER UNIQUE,
-                    section_id INTEGER,
-                    kodi_id INTEGER,
-                    last_sync INTEGER)
-            ''')
-            plexdb.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS album(
-                    plex_id INTEGER PRIMARY KEY,
-                    checksum INTEGER UNIQUE,
-                    section_id INTEGER,
-                    artist_id INTEGER,
-                    parent_id INTEGER,
-                    kodi_id INTEGER,
-                    last_sync INTEGER)
-            ''')
-            plexdb.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS track(
-                    plex_id INTEGER PRIMARY KEY,
-                    checksum INTEGER UNIQUE,
-                    section_id INTEGER,
-                    artist_id INTEGER,
-                    grandparent_id INTEGER,
-                    album_id INTEGER,
-                    parent_id INTEGER,
-                    kodi_id INTEGER,
-                    kodi_pathid INTEGER,
-                    last_sync INTEGER)
-            ''')
-            plexdb.cursor.execute('''
-                CREATE TABLE IF NOT EXISTS playlists(
-                    plex_id INTEGER PRIMARY KEY,
-                    plex_name TEXT,
-                    plex_updatedat INTEGER,
-                    kodi_path TEXT,
-                    kodi_type TEXT,
-                    kodi_hash TEXT)
-            ''')
-            # DB indicees for faster lookups
-            commands = (
-                'CREATE INDEX IF NOT EXISTS ix_movie_1 ON movie (last_sync)',
-                'CREATE UNIQUE INDEX IF NOT EXISTS ix_movie_2 ON movie (kodi_id)',
-                'CREATE INDEX IF NOT EXISTS ix_movie_3 ON movie (plex_guid)',
-                'CREATE INDEX IF NOT EXISTS ix_show_1 ON show (last_sync)',
-                'CREATE UNIQUE INDEX IF NOT EXISTS ix_show_2 ON show (kodi_id)',
-                'CREATE INDEX IF NOT EXISTS ix_show_3 ON show (plex_guid)',
-                'CREATE INDEX IF NOT EXISTS ix_season_1 ON season (last_sync)',
-                'CREATE UNIQUE INDEX IF NOT EXISTS ix_season_2 ON season (kodi_id)',
-                'CREATE INDEX IF NOT EXISTS ix_season_3 ON season (plex_guid)',
-                'CREATE INDEX IF NOT EXISTS ix_episode_1 ON episode (last_sync)',
-                'CREATE UNIQUE INDEX IF NOT EXISTS ix_episode_2 ON episode (kodi_id)',
-                'CREATE INDEX IF NOT EXISTS ix_episode_3 ON season (plex_guid)',
-                'CREATE INDEX IF NOT EXISTS ix_artist_1 ON artist (last_sync)',
-                'CREATE UNIQUE INDEX IF NOT EXISTS ix_artist_2 ON artist (kodi_id)',
-                'CREATE INDEX IF NOT EXISTS ix_album_1 ON album (last_sync)',
-                'CREATE UNIQUE INDEX IF NOT EXISTS ix_album_2 ON album (kodi_id)',
-                'CREATE INDEX IF NOT EXISTS ix_track_1 ON track (last_sync)',
-                'CREATE UNIQUE INDEX IF NOT EXISTS ix_track_2 ON track (kodi_id)',
-                'CREATE UNIQUE INDEX IF NOT EXISTS ix_playlists_2 ON playlists (kodi_path)',
-                'CREATE INDEX IF NOT EXISTS ix_playlists_3 ON playlists (kodi_hash)',
-            )
-            for cmd in commands:
-                plexdb.cursor.execute(cmd)
+    """
+    Run once upon PKC startup to verify that the plex db exists and uses the
+    multi-server schema.
+    """
+    with PlexDBBase() as plexdb:
+        schema.initialize(plexdb.cursor)
+        legacy_id = utils.settings('plex_machineIdentifier') or None
+        if schema.migrate(plexdb.cursor, legacy_id):
+            LOG.info('Migrated plex.db to the multi-server schema')
+            # Old rows are attributed to the legacy server but their content
+            # keys are only guesses. A full resync rebuilds them correctly.
+            utils.settings('SyncInstallRunDone', value='false')
+        plexdb.cursor.execute('''
+            INSERT OR REPLACE INTO version(idVersion)
+            VALUES (?)
+        ''', (v.ADDON_VERSION, ))
+        _sync_server_table(plexdb.cursor)
+
+
+def _sync_server_table(cursor):
+    """Copy the known Plex servers into the plex.db server table."""
+    registry = None
+    try:
+        from .. import app
+        if app.CONN is not None:
+            registry = app.CONN.registry
+    except (ImportError, AttributeError):
+        pass
+    if registry is not None:
+        servers = list(registry)
+    else:
+        machine_identifier = utils.settings('plex_machineIdentifier') or None
+        servers = []
+        if machine_identifier:
+            from ..app.server import Server
+            servers = [Server(machine_identifier=machine_identifier,
+                              host=utils.settings('ipaddress') or None)]
+    for server in servers:
+        cursor.execute('''
+            INSERT OR REPLACE INTO server(
+                machine_identifier, name, base_url, token, enabled, last_seen)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (server.machine_identifier, server.name, server.base_url,
+                server.token, int(server.enabled), server.last_seen))
+
 
 
 def wipe(table=None):

@@ -38,12 +38,35 @@ class Movie(ItemBase):
                       section_id or api.library_section_id())
             return
         plex_id = api.plex_id
-        movie = self.plexdb.movie(plex_id)
+        server_id = app.CONN.current_id
+        content_key = api.content_key
+        movie = self.plexdb.item_by_source(server_id, plex_id,
+                                           v.PLEX_TYPE_MOVIE)
+        existing_content = self.plexdb.item_by_content(
+            content_key, v.PLEX_TYPE_MOVIE) if content_key else None
         if movie:
             update_item = True
             kodi_id = movie['kodi_id']
             old_kodi_fileid = movie['kodi_fileid']
             kodi_pathid = movie['kodi_pathid']
+        elif existing_content:
+            # Same content already synced from another Plex server. Reuse its
+            # Kodi item so the library stays deduplicated, but register this
+            # server's ratingKey so playback can offer it as a source.
+            LOG.info('Deduplicating movie %s - also on server %s',
+                     api.title(), server_id)
+            self.plexdb.add_movie(
+                plex_id=plex_id,
+                plex_guid=api.plex_guid,
+                checksum=api.checksum(),
+                section_id=section_id or api.library_section_id(),
+                kodi_id=existing_content['kodi_id'],
+                kodi_fileid=existing_content.get('kodi_fileid'),
+                kodi_pathid=existing_content.get('kodi_pathid'),
+                trailer_synced=bool(api.trailer()),
+                last_sync=self.last_sync,
+                content_key=content_key)
+            return
         else:
             update_item = False
             kodi_id = self.kodidb.new_movie_id()
@@ -177,26 +200,36 @@ class Movie(ItemBase):
                               kodi_fileid=file_id,
                               kodi_pathid=kodi_pathid,
                               trailer_synced=bool(api.trailer()),
-                              last_sync=self.last_sync)
+                              last_sync=self.last_sync,
+                              content_key=content_key)
 
     def remove(self, plex_id, plex_type=None):
         """
         Remove a movie with all references and all orphaned associated entries
         from the Kodi DB
         """
-        movie = self.plexdb.movie(plex_id)
+        server_id = app.CONN.current_id
+        movie = self.plexdb.item_by_source(server_id, plex_id,
+                                           v.PLEX_TYPE_MOVIE)
         try:
             kodi_id = movie['kodi_id']
             file_id = movie['kodi_fileid']
             kodi_type = v.KODI_TYPE_MOVIE
+            content_key = movie.get('content_key')
             LOG.debug('Removing movie with plex_id %s, kodi_id: %s',
                       plex_id, kodi_id)
-        except TypeError:
+        except (TypeError, AttributeError):
             LOG.error('Movie with plex_id %s not found - cannot delete',
                       plex_id)
             return
-        # Remove the plex reference
-        self.plexdb.remove(plex_id, v.PLEX_TYPE_MOVIE)
+        # Remove this server's source. Only delete the Kodi item once no
+        # other Plex server still carries the same content.
+        self.plexdb.remove_source(server_id, plex_id, v.PLEX_TYPE_MOVIE)
+        if content_key and self.plexdb.source_count(content_key,
+                                                    v.PLEX_TYPE_MOVIE):
+            LOG.info('Keeping Kodi movie %s: still available from another '
+                     'Plex server', kodi_id)
+            return
         # Remove artwork
         self.kodidb.delete_artwork(kodi_id, kodi_type)
         set_id = self.kodidb.get_set_id(kodi_id)
@@ -223,7 +256,8 @@ class Movie(ItemBase):
         """
         api = API(xml_element)
         # Get key and db entry on the Kodi db side
-        db_item = self.plexdb.item_by_id(api.plex_id, plex_type)
+        db_item = self.plexdb.item_by_source(app.CONN.current_id,
+                                             api.plex_id, plex_type)
         if not db_item:
             LOG.info('Item not yet synced: %s', xml_element.attrib)
             return False

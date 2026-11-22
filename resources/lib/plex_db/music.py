@@ -4,7 +4,8 @@ from .. import variables as v
 
 
 class Music(object):
-    def add_artist(self, plex_id, checksum, section_id, kodi_id, last_sync):
+    def add_artist(self, plex_id, checksum, section_id, kodi_id, last_sync,
+                   content_key=None):
         """
         Appends or replaces music artist entry into the plex table
         """
@@ -14,8 +15,10 @@ class Music(object):
                 checksum,
                 section_id,
                 kodi_id,
-                last_sync)
-            VALUES (?, ?, ?, ?, ?)
+                last_sync,
+                server_id,
+                content_key)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
         '''
         self.cursor.execute(
             query,
@@ -23,10 +26,12 @@ class Music(object):
              checksum,
              section_id,
              kodi_id,
-             last_sync))
+             last_sync,
+             self._server_id(),
+             content_key))
 
     def add_album(self, plex_id, checksum, section_id, artist_id, parent_id,
-                  kodi_id, last_sync):
+                  kodi_id, last_sync, content_key=None):
         """
         Appends or replaces an entry into the plex table
         """
@@ -38,8 +43,10 @@ class Music(object):
                 artist_id,
                 parent_id,
                 kodi_id,
-                last_sync)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+                last_sync,
+                server_id,
+                content_key)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         '''
         self.cursor.execute(
             query,
@@ -49,10 +56,13 @@ class Music(object):
              artist_id,
              parent_id,
              kodi_id,
-             last_sync))
+             last_sync,
+             self._server_id(),
+             content_key))
 
     def add_song(self, plex_id, checksum, section_id, artist_id, grandparent_id,
-                 album_id, parent_id, kodi_id, kodi_pathid, last_sync):
+                 album_id, parent_id, kodi_id, kodi_pathid, last_sync,
+                 content_key=None):
         """
         Appends or replaces an entry into the plex table
         """
@@ -67,8 +77,10 @@ class Music(object):
                 parent_id,
                 kodi_id,
                 kodi_pathid,
-                last_sync)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                last_sync,
+                server_id,
+                content_key)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             '''
         self.cursor.execute(
             query,
@@ -81,7 +93,9 @@ class Music(object):
              parent_id,
              kodi_id,
              kodi_pathid,
-             last_sync))
+             last_sync,
+             self._server_id(),
+             content_key))
 
     def artist(self, plex_id):
         """

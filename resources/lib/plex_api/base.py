@@ -96,6 +96,18 @@ class Base(object):
         return self.xml.get('guid')
 
     @property
+    def content_key(self):
+        """
+        Server-independent identifier of the underlying content. Used to
+        deduplicate the same movie/show on several Plex servers and to offer
+        a server choice at playback time.
+        """
+        if not hasattr(self, '_content_key'):
+            from .. import contentkey
+            self._content_key = contentkey.from_xml(self.xml, self.plex_type)
+        return self._content_key
+
+    @property
     def fast_key(self):
         """
         Returns the 'fastKey' as unicode or None

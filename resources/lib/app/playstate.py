@@ -28,6 +28,7 @@ class PlayState(object):
         'kodi_type': None,
         'plex_id': None,
         'plex_type': None,
+        'machine_identifier': None,
         'container_key': None,
         'volume': 100,
         'muted': False,

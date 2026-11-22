@@ -85,6 +85,17 @@
                         <close>true</close>
                     </control>
                 </setting>
+                <setting id="mpskdxqzvjbhflcrtawygunieo" type="action" label="39450" help="">
+                    <!-- Manage Plex servers (multiple backends) -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect?mode=manageServers)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
             </group>
             <group id="3">
                 <setting id="plex_serverowned" type="boolean" label="30031" help=""> <!-- I own this Plex Media Server -->

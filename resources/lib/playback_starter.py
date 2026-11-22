@@ -45,7 +45,8 @@ class PlaybackTask(backgroundthread.Task):
                                      plex_type=params.get('plex_type'),
                                      path=params.get('path'),
                                      resolve=resolve,
-                                     resume=resume)
+                                     resume=resume,
+                                     content_key=params.get('content_key'))
         elif mode == 'plex_node':
             playback.process_indirect(params['key'],
                                       params['offset'],

@@ -4,7 +4,7 @@ from .. import variables as v
 
 class TVShows(object):
     def add_show(self, plex_id, plex_guid, checksum, section_id, kodi_id, kodi_pathid,
-                 last_sync):
+                 last_sync, content_key=None):
         """
         Appends or replaces tv show entry into the plex table
         """
@@ -18,8 +18,10 @@ class TVShows(object):
                 kodi_id,
                 kodi_pathid,
                 fanart_synced,
-                last_sync)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                last_sync,
+                server_id,
+                content_key)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''',
             (plex_id,
              plex_guid,
@@ -28,10 +30,12 @@ class TVShows(object):
              kodi_id,
              kodi_pathid,
              0,
-             last_sync))
+             last_sync,
+             self._server_id(),
+             content_key))
 
     def add_season(self, plex_id, plex_guid, checksum, section_id, show_id, parent_id,
-                   kodi_id, last_sync):
+                   kodi_id, last_sync, content_key=None):
         """
         Appends or replaces an entry into the plex table
         """
@@ -46,8 +50,10 @@ class TVShows(object):
                 parent_id,
                 kodi_id,
                 fanart_synced,
-                last_sync)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                last_sync,
+                server_id,
+                content_key)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''',
             (plex_id,
              plex_guid,
@@ -57,11 +63,13 @@ class TVShows(object):
              parent_id,
              kodi_id,
              0,
-             last_sync))
+             last_sync,
+             self._server_id(),
+             content_key))
 
     def add_episode(self, plex_id, plex_guid, checksum, section_id, show_id,
                     grandparent_id, season_id, parent_id, kodi_id, kodi_fileid,
-                    kodi_fileid_2, kodi_pathid, last_sync):
+                    kodi_fileid_2, kodi_pathid, last_sync, content_key=None):
         """
         Appends or replaces an entry into the plex table
         """
@@ -81,8 +89,10 @@ class TVShows(object):
                 kodi_fileid_2,
                 kodi_pathid,
                 fanart_synced,
-                last_sync)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                last_sync,
+                server_id,
+                content_key)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''',
             (plex_id,
              plex_guid,
@@ -97,7 +107,9 @@ class TVShows(object):
              kodi_fileid_2,
              kodi_pathid,
              0,
-             last_sync))
+             last_sync,
+             self._server_id(),
+             content_key))
 
     def show(self, plex_id):
         """

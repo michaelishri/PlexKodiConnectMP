@@ -30,8 +30,65 @@ IGNORE_SECONDS_AT_START = 15
 ###############################################################################
 
 
+# Remembered server choice per content key, so the two Kodi passes of an
+# add-on path playback resolve to the same Plex server.
+PLAYBACK_SERVERS = {}
+
+
+def _pick_playback_server(content_key, plex_type):
+    """
+    Resolve a server-independent content key to one (server, ratingKey) pair.
+
+    Offers a Kodi select dialog when more than one configured server has the
+    item. Returns (machine_identifier, plex_id) or (None, None) if cancelled.
+    """
+    with PlexDB() as plexdb:
+        sources = plexdb.sources_by_content(content_key, plex_type)
+    if not sources:
+        LOG.error('No Plex server has content %s', content_key)
+        return None, None
+
+    options = []
+    available = []
+    for server_id, plex_id, checksum, section_id, last_sync in sources:
+        server = app.CONN.get_server(server_id)
+        if server is None or not server.enabled:
+            continue
+        connection = app.CONN.connections.get(server_id)
+        online = bool(connection and connection.online)
+        label = '%s%s' % (server.name or server_id,
+                          '' if online else ' (offline)')
+        options.append(label)
+        available.append((server_id, plex_id, online))
+
+    if not available:
+        return None, None
+    if len(available) == 1:
+        chosen = available[0]
+    else:
+        remembered = PLAYBACK_SERVERS.get(content_key)
+        index = None
+        if remembered:
+            for position, (server_id, plex_id, online) in enumerate(available):
+                if server_id == remembered and online:
+                    index = position
+                    break
+        if index is None:
+            heading = '%s: %s' % (utils.lang(29999), 'Select Plex server')
+            index = utils.dialog('select', heading, options)
+        if index is None or index < 0 or index >= len(available):
+            return None, None
+        chosen = available[index]
+
+    server_id, plex_id, online = chosen
+    PLAYBACK_SERVERS[content_key] = server_id
+    LOG.info('Playing %s from Plex server %s (ratingKey %s)',
+             content_key, server_id, plex_id)
+    return server_id, plex_id
+
+
 def playback_triage(plex_id=None, plex_type=None, path=None, resolve=True,
-                    resume=False):
+                    resume=False, content_key=None):
     """
     Hit this function for addon path playback, Plex trailers, etc.
     Will setup playback first, then on second call complete playback.
@@ -48,7 +105,16 @@ def playback_triage(plex_id=None, plex_type=None, path=None, resolve=True,
     service.py Python instance
     """
     try:
-        _playback_triage(plex_id, plex_type, path, resolve, resume)
+        if content_key:
+            server_id, resolved_id = _pick_playback_server(content_key,
+                                                           plex_type)
+            if server_id is None:
+                _ensure_resolve(abort=True)
+                return
+            with app.using_server(server_id):
+                _playback_triage(resolved_id, plex_type, path, resolve, resume)
+        else:
+            _playback_triage(plex_id, plex_type, path, resolve, resume)
     finally:
         # Reset some playback variables the user potentially set to init
         # playback
@@ -468,6 +534,7 @@ def _conclude_playback(playqueue, pos):
     if item.playmethod != v.PLAYBACK_METHOD_DIRECT_PATH:
         listitem.setSubtitles(item.api.cache_external_subs())
     # Persist the current PlaylistItem so we can fall back to PMS on failure
+    item.machine_identifier = app.CONN.current_id
     app.PLAYSTATE.item = item
     transfer.send(listitem)
     LOG.debug('Done concluding playback')

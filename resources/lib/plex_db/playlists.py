@@ -43,8 +43,9 @@ class Playlists(object):
                 plex_updatedat,
                 kodi_path,
                 kodi_type,
-                kodi_hash)
-            VALUES (?, ?, ?, ?, ?, ?)
+                kodi_hash,
+                server_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             '''
         self.cursor.execute(
             query,
@@ -53,7 +54,8 @@ class Playlists(object):
              playlist.plex_updatedat,
              playlist.kodi_path,
              playlist.kodi_type,
-             playlist.kodi_hash))
+             playlist.kodi_hash,
+             self._server_id()))
 
     def playlist(self, playlist, plex_id=None, path=None):
         """
