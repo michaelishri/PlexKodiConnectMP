@@ -84,6 +84,14 @@ class FakeControl(object):
         pass
 
 
+class FakeMonitor(object):
+    def abortRequested(self):
+        return False
+
+    def waitForAbort(self, seconds=0):
+        return False
+
+
 class FakeListItem(object):
     def __init__(self, label='', label2='', path='', *args, **kwargs):
         self.label = label
@@ -186,6 +194,7 @@ def install():
     xbmc.getLocalizedString = lambda key: ''
     xbmc.executebuiltin = lambda command: None
     xbmc.executeJSONRPC = lambda request: '{}'
+    xbmc.Monitor = FakeMonitor
     xbmc.PlayList = FakePlayList
     xbmc.Player = FakePlayer
     xbmc.PLAYLIST_MUSIC = 0

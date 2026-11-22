@@ -8,6 +8,7 @@ dialogs are rendered by the active Kodi skin, and some skins indicate the
 selection only by changing the text colour. This window is drawn by PKC's own
 Main skin so every row has an explicit enabled/checked indicator.
 """
+import xbmc
 import xbmcgui
 
 from . import kodigui
@@ -51,6 +52,7 @@ class SelectDialog(kodigui.BaseDialog):
         self.list.addItems(items)
         self._update_subtitle()
         self.setBoolProperty('initialized', True)
+        xbmc.Monitor().waitForAbort(0.1)
         self.setFocusId(self.LIST_ID)
 
     def _update_subtitle(self):
