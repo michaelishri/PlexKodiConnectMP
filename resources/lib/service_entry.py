@@ -510,7 +510,8 @@ class Service(object):
                 elif plex_command == 'textures-scan':
                     app.SYNC.run_lib_scan = 'textures'
                 elif plex_command == 'select-libraries':
-                    self.choose_plex_libraries()
+                    from .library_sync import sections
+                    sections.sync_from_pms(self, pick_libraries=True)
                 elif plex_command == 'refreshplaylist':
                     self.reset_playlists_and_nodes()
                 elif plex_command == 'RESET-PKC':

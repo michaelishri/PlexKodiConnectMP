@@ -1,3 +1,6 @@
+version 3.13.5 (multi-server fork):
+- Fix the "select libraries" action which called a non-existent method
+
 version 3.13.4 (multi-server fork):
 - Replace Kodi's native select/multiselect dialogs with a PKC-owned dialog
   that draws an explicit checkbox on every row
