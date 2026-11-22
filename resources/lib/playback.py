@@ -424,10 +424,10 @@ def _prep_playlist_stack(xml, resume):
                 # fixes Kodi immediately resuming the video if one restarts
                 # the same video again after playback
                 # WARNING: This fixes startup, but renders Kodi unstable
-                # path = path.replace('plugin.video.plexkodiconnect.tvshows',
-                #                     'plugin.video.plexkodiconnect', 1)
-                # path = path.replace('plugin.video.plexkodiconnect.movies',
-                #                     'plugin.video.plexkodiconnect', 1)
+                # path = path.replace('plugin.video.plexkodiconnect.ms.tvshows',
+                #                     'plugin.video.plexkodiconnect.ms', 1)
+                # path = path.replace('plugin.video.plexkodiconnect.ms.movies',
+                #                     'plugin.video.plexkodiconnect.ms', 1)
                 listitem = api.listitem()
                 listitem.setPath(path)
             else:

@@ -994,7 +994,7 @@ class WindowProperty(object):
 
 class GlobalProperty(object):
     def __init__(self, prop, val='1', end=None):
-        self._addonID = 'plugin.video.plexkodiconnect'
+        self._addonID = 'plugin.video.plexkodiconnect.ms'
         self.prop = prop
         self.val = val
         self.end = end

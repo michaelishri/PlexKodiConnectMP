@@ -31,7 +31,7 @@ from . import pathvalidate, path_ops, variables as v
 LOG = getLogger('PLEX.utils')
 
 WINDOW = xbmcgui.Window(10000)
-ADDON = xbmcaddon.Addon(id='plugin.video.plexkodiconnect')
+ADDON = xbmcaddon.Addon(id='plugin.video.plexkodiconnect.ms')
 
 # If several threads access  the settings.xml file concurrently, it gets
 # corrupted
@@ -62,17 +62,17 @@ def garbageCollect():
 
 def setGlobalProperty(key, val):
     xbmcgui.Window(10000).setProperty(
-        'plugin.video.plexkodiconnect.{0}'.format(key), val)
+        'plugin.video.plexkodiconnect.ms.{0}'.format(key), val)
 
 
 def setGlobalBoolProperty(key, boolean):
     xbmcgui.Window(10000).setProperty(
-        'plugin.video.plexkodiconnect.{0}'.format(key), boolean and '1' or '')
+        'plugin.video.plexkodiconnect.ms.{0}'.format(key), boolean and '1' or '')
 
 
 def getGlobalProperty(key):
     return xbmc.getInfoLabel(
-        'Window(10000).Property(plugin.video.plexkodiconnect.{0})'.format(key))
+        'Window(10000).Property(plugin.video.plexkodiconnect.ms.{0})'.format(key))
 
 
 def reboot_kodi(message=None):
@@ -115,7 +115,7 @@ def settings(setting, value=None):
     """
     # We need to instantiate every single time to read changed variables!
     with SETTINGS_LOCK:
-        addon = xbmcaddon.Addon('plugin.video.plexkodiconnect')
+        addon = xbmcaddon.Addon('plugin.video.plexkodiconnect.ms')
         if value is not None:
             # Takes string or unicode by default!
             addon.setSetting(setting, value)
@@ -182,7 +182,7 @@ def dialog(typus, *args, **kwargs):
     """
     if 'icon' in kwargs:
         types = {
-            '{plex}': 'special://home/addons/plugin.video.plexkodiconnect/icon.png',
+            '{plex}': 'special://home/addons/plugin.video.plexkodiconnect.ms/icon.png',
             '{info}': xbmcgui.NOTIFICATION_INFO,
             '{warning}': xbmcgui.NOTIFICATION_WARNING,
             '{error}': xbmcgui.NOTIFICATION_ERROR

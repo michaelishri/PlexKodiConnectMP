@@ -77,7 +77,7 @@ def wipe_table():
 
 def _m3u_iterator(text):
     """
-    Yields e.g. plugin://plugin.video.plexkodiconnect.movies/?plex_id=xxx
+    Yields e.g. plugin://plugin.video.plexkodiconnect.ms.movies/?plex_id=xxx
     """
     lines = iter(text.split('\n'))
     for line in lines:

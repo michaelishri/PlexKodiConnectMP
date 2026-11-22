@@ -12,7 +12,7 @@ def main():
     plex_id = plex_id_from_listitem()
     if plex_id is None:
         return
-    handle = ('plugin://plugin.video.plexkodiconnect?mode=extras&plex_id=%s'
+    handle = ('plugin://plugin.video.plexkodiconnect.ms?mode=extras&plex_id=%s'
               % plex_id)
     executebuiltin('ActivateWindow(videos,\"%s\",return)' % handle)
 

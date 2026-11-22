@@ -71,7 +71,7 @@ class File(object):
                 return self._music_addon_paths(force_first_media)
             if self.plex_type == v.PLEX_TYPE_EPISODE:
                 # need to include the plex show id in the path
-                path = ('plugin://plugin.video.plexkodiconnect.tvshows/%s/'
+                path = ('plugin://plugin.video.plexkodiconnect.ms.tvshows/%s/'
                         % self.grandparent_id())
             else:
                 path = 'plugin://%s/' % v.ADDON_TYPE[self.plex_type]

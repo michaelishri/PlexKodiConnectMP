@@ -94,9 +94,9 @@ def directory_item(label, path, folder=True):
     """
     listitem = ListItem(label, path=path)
     listitem.setArt(
-        {'landscape':'special://home/addons/plugin.video.plexkodiconnect/fanart.jpg',
-         'fanart': 'special://home/addons/plugin.video.plexkodiconnect/fanart.jpg',
-         'thumb': 'special://home/addons/plugin.video.plexkodiconnect/icon.png'})
+        {'landscape':'special://home/addons/plugin.video.plexkodiconnect.ms/fanart.jpg',
+         'fanart': 'special://home/addons/plugin.video.plexkodiconnect.ms/fanart.jpg',
+         'thumb': 'special://home/addons/plugin.video.plexkodiconnect.ms/icon.png'})
     xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),
                                 url=path,
                                 listitem=listitem,
@@ -339,7 +339,7 @@ def extra_fanart(plex_id, plex_path):
     LOG.debug('extra_fanart alled with plex_id: %s, plex_path: %s',
               plex_id, plex_path)
     if not plex_id:
-        if "plugin.video.plexkodiconnect" in plex_path:
+        if "plugin.video.plexkodiconnect.ms" in plex_path:
             plex_id = plex_path.split("/")[-2]
     if not plex_id:
         LOG.error('extra_fanart: Could not get a plex_id, aborting')

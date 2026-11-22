@@ -36,9 +36,9 @@ KODI_IGNOREPERCENTATEND = 0.08
 KODI_PLAYCOUNTMINIMUMPERCENT = 0.9
 KODI_IGNORESECONDSATSTART = 180
 
-_ADDON = Addon('plugin.video.plexkodiconnect')
+_ADDON = Addon('plugin.video.plexkodiconnect.ms')
 ADDON_NAME = 'PlexKodiConnect'
-ADDON_ID = 'plugin.video.plexkodiconnect'
+ADDON_ID = 'plugin.video.plexkodiconnect.ms'
 ADDON_VERSION = _ADDON.getAddonInfo('version')
 ADDON_PATH = _ADDON.getAddonInfo('path')
 ADDON_FOLDER = xbmcvfs.translatePath('special://home')
@@ -267,15 +267,15 @@ PLEX_AUDIOTYPES = (
 # Translation tables
 
 ADDON_TYPE = {
-    PLEX_TYPE_MOVIE: 'plugin.video.plexkodiconnect.movies',
-    PLEX_TYPE_CLIP: 'plugin.video.plexkodiconnect.movies',
-    PLEX_TYPE_EPISODE: 'plugin.video.plexkodiconnect.tvshows',
-    PLEX_TYPE_SEASON: 'plugin.video.plexkodiconnect.tvshows',
-    PLEX_TYPE_SHOW: 'plugin.video.plexkodiconnect.tvshows',
-    PLEX_TYPE_SONG: 'plugin.video.plexkodiconnect',
-    PLEX_TYPE_ALBUM: 'plugin.video.plexkodiconnect',
-    PLEX_TYPE_ARTIST: 'plugin.video.plexkodiconnect',
-    PLEX_TYPE_PLAYLIST: 'plugin.video.plexkodiconnect'
+    PLEX_TYPE_MOVIE: 'plugin.video.plexkodiconnect.ms.movies',
+    PLEX_TYPE_CLIP: 'plugin.video.plexkodiconnect.ms.movies',
+    PLEX_TYPE_EPISODE: 'plugin.video.plexkodiconnect.ms.tvshows',
+    PLEX_TYPE_SEASON: 'plugin.video.plexkodiconnect.ms.tvshows',
+    PLEX_TYPE_SHOW: 'plugin.video.plexkodiconnect.ms.tvshows',
+    PLEX_TYPE_SONG: 'plugin.video.plexkodiconnect.ms',
+    PLEX_TYPE_ALBUM: 'plugin.video.plexkodiconnect.ms',
+    PLEX_TYPE_ARTIST: 'plugin.video.plexkodiconnect.ms',
+    PLEX_TYPE_PLAYLIST: 'plugin.video.plexkodiconnect.ms'
 }
 
 ITEMTYPE_FROM_PLEXTYPE = {

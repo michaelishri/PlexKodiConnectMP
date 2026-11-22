@@ -156,13 +156,13 @@ class KodiVideoDB(common.KodiDBBase):
         """
         Returns a generator for idFile of all Kodi file ids that do not have a
         dateAdded set (dateAdded NULL) and the filename start with
-        'plugin://plugin.video.plexkodiconnect'
+        'plugin://plugin.video.plexkodiconnect.ms'
         These entries should be deleted as they're created falsely by Kodi.
         """
         return (x[0] for x in self.cursor.execute('''
             SELECT idFile FROM files
             WHERE dateAdded IS NULL
-            AND strFilename LIKE \'plugin://plugin.video.plexkodiconnect%\'
+            AND strFilename LIKE \'plugin://plugin.video.plexkodiconnect.ms%\'
             '''))
 
     def show_id_from_path(self, path):

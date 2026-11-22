@@ -1,5 +1,6 @@
 *.pyo
 __pycache__/
 *.pyc
+build/
 machine_guid
 /resources/media/Thumbs.db

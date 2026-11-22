@@ -30,6 +30,29 @@ Have a look at [some screenshots](https://github.com/croneter/PlexKodiConnect/wi
 ### Download and Installation
 See here for detailed instructions: [Installation](https://github.com/croneter/PlexKodiConnect/wiki/Installation)
 
+### Installation (multi-server fork)
+
+This fork uses its own add-on ID (`plugin.video.plexkodiconnect.ms`) and a
+self-contained Kodi repository, so it can be installed alongside the official
+PlexKodiConnect. **Disable or uninstall the official PlexKodiConnect before
+using this fork** — both write to the same Kodi video/music database.
+
+1. Download `repository.plexkodiconnect.ms-<version>.zip` from
+   [GitHub Releases](https://github.com/michaelishri/PlexKodiConnectMP/releases)
+   or the [repository home page](https://michaelishri.github.io/PlexKodiConnectMP/).
+2. In Kodi: **Add-ons → Install from zip file** and select that ZIP.
+3. Go to **Add-ons → Install from repository → PlexKodiConnect Multi-Server
+   Repository → Video add-ons → PlexKodiConnect (Multi-Server) → Install**.
+   The two helper add-ons are installed automatically from the same repo.
+4. Future versions appear under **Add-ons → Check for updates** (or install
+   automatically, depending on your Kodi settings).
+
+On first run, settings and the Plex server registry are copied from the
+official PKC add-on profile if one exists.
+
+To build the repository locally: `python3 scripts/build_repo.py`. Output is
+written to `build/pages`. Run the tests with `python3 tests/run_all.py`.
+
 ### Warning
 Use at your own risk! This plugin assumes that you manage all your videos with Plex (and none with Kodi). You might lose data already stored in the Kodi video and music databases as this plugin directly changes them. Don't worry if you want Plex to manage all your media (like you should ;-)). 
 

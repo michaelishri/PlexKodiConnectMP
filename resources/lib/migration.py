@@ -9,7 +9,44 @@ from . import utils
 LOG = getLogger('PLEX.migration')
 
 
+def migrate_addon_id_settings():
+    """
+    This fork uses its own addon id. On first run, copy the settings and the
+    server registry from the original PKC addon profile so users do not have
+    to configure their servers and account again.
+    """
+    import os
+    import shutil
+    import xbmcvfs
+
+    old_profile = xbmcvfs.translatePath(
+        'special://profile/addon_data/plugin.video.plexkodiconnect/')
+    new_profile = v.ADDON_PROFILE
+    marker = os.path.join(new_profile, '.pkc_ms_settings_migrated')
+    if os.path.exists(marker) or not os.path.isdir(old_profile):
+        return
+    if not os.path.isdir(new_profile):
+        os.makedirs(new_profile)
+    copied = []
+    for name in ('settings.xml', 'servers.json'):
+        source = os.path.join(old_profile, name)
+        target = os.path.join(new_profile, name)
+        if os.path.exists(source) and not os.path.exists(target):
+            try:
+                shutil.copy2(source, target)
+                copied.append(name)
+            except (IOError, OSError) as error:
+                LOG.error('Could not copy %s: %s', source, error)
+    LOG.info('Migrated settings from original PKC profile: %s', copied)
+    try:
+        with open(marker, 'w') as handle:
+            handle.write('done')
+    except (IOError, OSError):
+        pass
+
+
 def check_migration():
+    migrate_addon_id_settings()
     LOG.info('Checking whether we need to migrate something')
     last_migration = utils.settings('last_migrated_PKC_version')
     # Ensure later migration if user downgraded PKC!

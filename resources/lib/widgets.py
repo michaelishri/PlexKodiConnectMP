@@ -243,8 +243,8 @@ def _generate_content(api):
     if not api.kodi_id and plex_type == v.PLEX_TYPE_EPISODE:
         # Hack - Item is not synched to the Kodi database
         # We CANNOT use paths that show up in the Kodi paths table!
-        url = url.replace('plugin.video.plexkodiconnect.tvshows',
-                          'plugin.video.plexkodiconnect')
+        url = url.replace('plugin.video.plexkodiconnect.ms.tvshows',
+                          'plugin.video.plexkodiconnect.ms')
     item['file'] = url
     return item
 
