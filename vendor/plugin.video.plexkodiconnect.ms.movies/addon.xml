@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.plexkodiconnect.ms.movies" name="PlexKodiConnect Helper Movies" version="3.0.2" provider-name="michaelishri">
+<addon id="plugin.video.plexkodiconnect.ms.movies" name="PlexKodiConnect Helper Movies" version="3.0.3" provider-name="michaelishri">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
     </requires>
@@ -9,14 +9,13 @@
     <extension point="xbmc.addon.metadata">
         <!-- see e.g. https://github.com/xbmc/xbmc/pull/14136 -->
         <reuselanguageinvoker>true</reuselanguageinvoker>
-        <summary lang="en">PKC Dependency Add-On</summary>
-        <description lang="en">PlexKodiConnect add-on for movies</description>
+        <summary lang="en_GB">PKC Dependency Add-On</summary>
+        <description lang="en_GB">PlexKodiConnect add-on for movies</description>
         <platform>all</platform>
         <language>en</language>
-        <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
-        <forum></forum>
-        <website>https://github.com/michaelishri/PlexKodiConnectMP</website>
-        <source></source>
+        <license>GPL-2.0-or-later</license>
+                <website>https://github.com/michaelishri/PlexKodiConnectMP</website>
+        <source>https://github.com/michaelishri/PlexKodiConnectMP</source>
         <news>version 3.0.2
 - Use addon.xml `reuselanguageinvoker` to turn add-on snappier
 
@@ -66,5 +65,9 @@ version 2.0.1
 - Correctly handle direct plugin calls
 - Drop python requests dependency
 </news>
-    </extension>
+    <assets>
+      <icon>icon.png</icon>
+      <fanart>fanart.jpg</fanart>
+    </assets>
+  </extension>
 </addon>

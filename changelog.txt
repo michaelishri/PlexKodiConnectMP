@@ -1,3 +1,8 @@
+version 3.13.2 (multi-server fork):
+- Fix the Kodi repository: use the <dir> schema required by Kodi 20+ and the
+  per-addon directory layout Kodi uses to locate addon ZIPs and artwork.
+- Update addon metadata (en_GB, assets, SPDX license, source URLs).
+
 version 3.13.1 (multi-server fork):
 - Fix sign-in / PIN login window: skin texture paths were pointing at the
   forked addon id instead of the skin media folder name

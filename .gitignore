@@ -4,3 +4,4 @@ __pycache__/
 build/
 machine_guid
 /resources/media/Thumbs.db
+.env

@@ -9,7 +9,7 @@ Produces, in <output> (default: build/pages):
     repository.plexkodiconnect.ms/            (browsable source)
     repo/addons.xml
     repo/addons.xml.md5
-    repo/bin/<addon-id>-<version>.zip  (main addon + both helper addons)
+    repo/bin/<addon-id>/<addon-id>-<version>.zip  (+ icon/fanart per addon)
 
 No third-party dependencies - standard library only.
 """
@@ -67,6 +67,32 @@ def zip_addon(source_dir, target, addon_id, excludes=(), file_excludes=()):
                                          os.path.getsize(target)))
 
 
+def _find_asset(addon_dir, name):
+    """Locate an asset declared in addon.xml (root or resources/)."""
+    for relative in (name, os.path.join('resources', name)):
+        path = os.path.join(addon_dir, relative)
+        if os.path.isfile(path):
+            return path
+    return None
+
+
+def _stage_addon(source_dir, addon_id, bin_dir, **zip_kwargs):
+    """
+    Kodi expects <datadir>/<addon.id>/<addon.id>-<version>.zip and looks for
+    artwork in <datadir>/<addon.id>/ as well (datadir doubles as artdir).
+    """
+    version = addon_version(source_dir)
+    target_dir = os.path.join(bin_dir, addon_id)
+    os.makedirs(target_dir, exist_ok=True)
+    for asset in ('icon.png', 'fanart.jpg'):
+        source = _find_asset(source_dir, asset)
+        if source:
+            shutil.copy2(source, os.path.join(target_dir, asset))
+    target = os.path.join(target_dir, '%s-%s.zip' % (addon_id, version))
+    zip_addon(source_dir, target, addon_id, **zip_kwargs)
+    return version
+
+
 def build(output):
     if os.path.isabs(output):
         out = output
@@ -80,18 +106,15 @@ def build(output):
     addons = []
 
     print('Building addon ZIPs...')
-    version = addon_version(ROOT)
-    main_zip = os.path.join(bin_dir, '%s-%s.zip' % (MAIN_ID, version))
-    zip_addon(ROOT, main_zip, MAIN_ID,
-              excludes=MAIN_EXCLUDES, file_excludes=MAIN_FILE_EXCLUDES)
+    version = _stage_addon(ROOT, MAIN_ID, bin_dir,
+                           excludes=MAIN_EXCLUDES,
+                           file_excludes=MAIN_FILE_EXCLUDES)
     addons.append((ROOT, version))
 
     for suffix in ('movies', 'tvshows'):
         addon_id = '%s.%s' % (MAIN_ID, suffix)
         source = os.path.join(ROOT, 'vendor', addon_id)
-        version = addon_version(source)
-        target = os.path.join(bin_dir, '%s-%s.zip' % (addon_id, version))
-        zip_addon(source, target, addon_id)
+        version = _stage_addon(source, addon_id, bin_dir)
         addons.append((source, version))
 
     print('Generating addons.xml...')
