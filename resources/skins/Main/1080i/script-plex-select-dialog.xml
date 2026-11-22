@@ -1,5 +1,5 @@
 <window>
-    <defaultcontrol>100</defaultcontrol>
+    <defaultcontrol>1001</defaultcontrol>
     <coordinates>
         <system>1</system>
         <posx>0</posx>
@@ -14,7 +14,6 @@
             <texture colordiffuse="99606060">plugin.video.plexkodiconnect/white-square.png</texture>
         </control>
         <control type="group">
-            <visible>!String.IsEmpty(Window.Property(initialized))</visible>
             <posx>460</posx>
             <posy>170</posy>
 

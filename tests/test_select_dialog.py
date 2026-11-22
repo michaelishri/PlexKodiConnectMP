@@ -69,6 +69,7 @@ class TestSelectDialogSkin(unittest.TestCase):
     def test_skin_has_visible_checkbox_per_row(self):
         with open(SKIN, encoding='utf-8') as handle:
             xml = handle.read()
+        self.assertIn('<defaultcontrol>1001</defaultcontrol>', xml)
         self.assertIn('type="list" id="100"', xml)
         self.assertIn('ListItem.Property(checkbox)', xml)
         self.assertIn('ListItem.Property(checked)', xml)

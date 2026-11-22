@@ -1,3 +1,6 @@
+version 3.13.7 (multi-server fork):
+- Fix focus error when opening the custom selection dialog
+
 version 3.13.6 (multi-server fork):
 - Fix focus of the new selection dialog list on first open
 
