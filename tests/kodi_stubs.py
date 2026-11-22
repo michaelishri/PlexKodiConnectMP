@@ -130,6 +130,20 @@ def install():
     xbmcvfs.translatePath = lambda path: path.replace(
         'special://profile', '/tmp/opencode/pkc-test-profile').replace(
         'special://home', '/tmp/opencode/pkc-test-home')
+    xbmcvfs.exists = lambda path: os.path.exists(path)
+    xbmcvfs.mkdirs = lambda path: os.makedirs(path, exist_ok=True)
+
+    class TMDBMovieScraper(object):
+        def __init__(self, settings, language, certcountry,
+                     search_language=None, extra=None):
+            pass
+
+    tmdbscraper = types.ModuleType('tmdbscraper')
+    tmdb = types.ModuleType('tmdbscraper.tmdb')
+    tmdb.TMDBMovieScraper = TMDBMovieScraper
+    tmdbscraper.tmdb = tmdb
+    sys.modules.setdefault('tmdbscraper', tmdbscraper)
+    sys.modules.setdefault('tmdbscraper.tmdb', tmdb)
 
     sys.modules.setdefault('xbmc', xbmc)
     sys.modules.setdefault('xbmcaddon', xbmcaddon)

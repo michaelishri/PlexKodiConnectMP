@@ -110,6 +110,27 @@ class TestConnectionContext(unittest.TestCase):
             self.assertEqual(app.ACCOUNT.pms_token, 'token-B')
         self.assertEqual(app.ACCOUNT.pms_token, 'token-A')
 
+    def test_servers_is_a_method_on_the_connections_facade(self):
+        # Regression: ServerRegistry.servers is a @property; calling it as
+        # registry.servers() raised "'list' object is not callable" and killed
+        # the sync thread as soon as a Section object was created.
+        servers = app.CONN.servers()
+        self.assertEqual(len(servers), 2)
+        self.assertEqual(sorted(server.machine_identifier for server in servers),
+                         ['server-A', 'server-B'])
+
+    def test_section_creation_resolves_server_suffix(self):
+        os.makedirs('/tmp/opencode/pkc-test-profile/library/video',
+                    exist_ok=True)
+        os.makedirs('/tmp/opencode/pkc-test-profile/playlists/video',
+                    exist_ok=True)
+        from resources.lib.library_sync import sections
+        section = sections.Section()
+        section.section_id = 1
+        self.assertTrue(section._node.startswith('Plex.nodes.'))
+        self.assertTrue(section._path.startswith(
+            '/tmp/opencode/pkc-test-profile/library/video/Plex-'))
+
     def test_online_state_is_per_server(self):
         app.CONN.online = True
         self.assertTrue(app.CONN.get_server('server-A') is not None)

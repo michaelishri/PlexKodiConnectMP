@@ -155,7 +155,7 @@ class Connections(object):
 
     def servers(self):
         """All configured Server records."""
-        return self.registry.servers()
+        return self.registry.servers
 
     def enabled_servers(self):
         return self.registry.enabled_servers()
