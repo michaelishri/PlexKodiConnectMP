@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-<addon  id="plugin.video.plexkodiconnect.ms" name="PlexKodiConnect (Multi-Server)" version="3.13.1" provider-name="michaelishri">
+<addon  id="plugin.video.plexkodiconnect.ms" name="PlexKodiConnect (Multi-Server)" version="3.13.2" provider-name="michaelishri">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.22.0" />
-    <import addon="plugin.video.plexkodiconnect.ms.movies" version="3.0.2" />
-    <import addon="plugin.video.plexkodiconnect.ms.tvshows" version="3.0.2" />
+    <import addon="plugin.video.plexkodiconnect.ms.movies" version="3.0.3" />
+    <import addon="plugin.video.plexkodiconnect.ms.tvshows" version="3.0.3" />
     <import addon="metadata.themoviedb.org.python" version="1.3.1" />
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
@@ -47,15 +47,14 @@
         <icon>icon.png</icon>
         <fanart>fanart.jpg</fanart>
     </assets>
-    <summary lang="en">Native Integration of Plex into Kodi</summary>
-    <description lang="en">Connect Kodi to your Plex Media Server. This plugin assumes that you manage all your videos with Plex (and none with Kodi). You might lose data already stored in the Kodi video and music databases (as this plugin directly changes them). Use at your own risk!</description>
-    <disclaimer lang="en">Use at your own risk</disclaimer>
+    <summary lang="en_GB">Native Integration of Plex into Kodi</summary>
+    <description lang="en_GB">Connect Kodi to your Plex Media Server. This plugin assumes that you manage all your videos with Plex (and none with Kodi). You might lose data already stored in the Kodi video and music databases (as this plugin directly changes them). Use at your own risk!</description>
+    <disclaimer lang="en_GB">Use at your own risk</disclaimer>
     <platform>all</platform>
-    <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
+    <license>GPL-2.0-or-later</license>
     <forum>https://forums.plex.tv</forum>
-    <website>https://github.com/croneter/PlexKodiConnect</website>
-    <email></email>
-    <source>https://github.com/croneter/PlexKodiConnect</source>
+    <website>https://github.com/michaelishri/PlexKodiConnectMP</website>
+    <source>https://github.com/michaelishri/PlexKodiConnectMP</source>
     <summary lang="nl_NL">Directe integratie van Plex in Kodi</summary>
     <description lang="nl_NL">Verbind Kodi met je Plex Media Server. Deze plugin gaat ervan uit dat je al je video's met Plex (en niet met Kodi) beheerd. Je kunt gegevens reeds opgeslagen in de databases voor video en muziek van Kodi (deze plugin wijzigt deze gegevens direct) verliezen. Gebruik op eigen risico!</description>
     <disclaimer lang="nl_NL">Gebruik op eigen risico</disclaimer>
@@ -609,7 +608,7 @@ version 3.0.0:
   </extension>
 </addon>
 
-<addon id="plugin.video.plexkodiconnect.ms.movies" name="PlexKodiConnect Helper Movies" version="3.0.2" provider-name="michaelishri">
+<addon id="plugin.video.plexkodiconnect.ms.movies" name="PlexKodiConnect Helper Movies" version="3.0.3" provider-name="michaelishri">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
     </requires>
@@ -619,14 +618,13 @@ version 3.0.0:
     <extension point="xbmc.addon.metadata">
         <!-- see e.g. https://github.com/xbmc/xbmc/pull/14136 -->
         <reuselanguageinvoker>true</reuselanguageinvoker>
-        <summary lang="en">PKC Dependency Add-On</summary>
-        <description lang="en">PlexKodiConnect add-on for movies</description>
+        <summary lang="en_GB">PKC Dependency Add-On</summary>
+        <description lang="en_GB">PlexKodiConnect add-on for movies</description>
         <platform>all</platform>
         <language>en</language>
-        <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
-        <forum></forum>
-        <website>https://github.com/michaelishri/PlexKodiConnectMP</website>
-        <source></source>
+        <license>GPL-2.0-or-later</license>
+                <website>https://github.com/michaelishri/PlexKodiConnectMP</website>
+        <source>https://github.com/michaelishri/PlexKodiConnectMP</source>
         <news>version 3.0.2
 - Use addon.xml `reuselanguageinvoker` to turn add-on snappier
 
@@ -676,10 +674,14 @@ version 2.0.1
 - Correctly handle direct plugin calls
 - Drop python requests dependency
 </news>
-    </extension>
+    <assets>
+      <icon>icon.png</icon>
+      <fanart>fanart.jpg</fanart>
+    </assets>
+  </extension>
 </addon>
 
-<addon id="plugin.video.plexkodiconnect.ms.tvshows" name="PlexKodiConnect Helper TV Shows" version="3.0.2" provider-name="michaelishri">
+<addon id="plugin.video.plexkodiconnect.ms.tvshows" name="PlexKodiConnect Helper TV Shows" version="3.0.3" provider-name="michaelishri">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
     </requires>
@@ -689,14 +691,13 @@ version 2.0.1
     <extension point="xbmc.addon.metadata">
         <!-- see e.g. https://github.com/xbmc/xbmc/pull/14136 -->
         <reuselanguageinvoker>true</reuselanguageinvoker>
-        <summary lang="en">PKC Dependency Add-On</summary>
-        <description lang="en">PlexKodiConnect add-on for tv shows</description>
+        <summary lang="en_GB">PKC Dependency Add-On</summary>
+        <description lang="en_GB">PlexKodiConnect add-on for tv shows</description>
         <platform>all</platform>
         <language>en</language>
-        <license>GNU GENERAL PUBLIC LICENSE. Version 2, June 1991</license>
-        <forum></forum>
-        <website>https://github.com/michaelishri/PlexKodiConnectMP</website>
-        <source></source>
+        <license>GPL-2.0-or-later</license>
+                <website>https://github.com/michaelishri/PlexKodiConnectMP</website>
+        <source>https://github.com/michaelishri/PlexKodiConnectMP</source>
         <news>version 3.0.2
 - Use addon.xml `reuselanguageinvoker` to turn add-on snappier
 
@@ -749,6 +750,10 @@ version 2.0.2
 version 2.0.1
 - Fix widget navigating to entire TV show not working
 </news>
-    </extension>
+    <assets>
+      <icon>icon.png</icon>
+      <fanart>fanart.jpg</fanart>
+    </assets>
+  </extension>
 </addon>
 </addons>
