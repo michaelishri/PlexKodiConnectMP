@@ -17,7 +17,8 @@ class TvShowMixin(object):
         """
         api = API(xml_element)
         # Get key and db entry on the Kodi db side
-        db_item = self.plexdb.item_by_id(api.plex_id, plex_type)
+        db_item = self.plexdb.item_by_source(app.CONN.current_id,
+                                             api.plex_id, plex_type)
         if not db_item:
             LOG.info('Item not yet synced: %s', xml_element.attrib)
             return False
@@ -44,15 +45,23 @@ class TvShowMixin(object):
         Remove the entire TV shows object (show, season or episode) including
         all associated entries from the Kodi DB.
         """
-        db_item = self.plexdb.item_by_id(plex_id, plex_type)
+        server_id = app.CONN.current_id
+        db_item = self.plexdb.item_by_source(server_id, plex_id, plex_type)
         if not db_item:
             LOG.debug('Cannot delete plex_id %s - not found in DB', plex_id)
             return
         LOG.debug('Removing %s %s with kodi_id: %s',
                   db_item['plex_type'], plex_id, db_item['kodi_id'])
 
-        # Remove the plex reference
-        self.plexdb.remove(plex_id, db_item['plex_type'])
+        # Remove this server's source. Keep the Kodi item while another Plex
+        # server still carries the same content.
+        self.plexdb.remove_source(server_id, plex_id, db_item['plex_type'])
+        content_key = db_item.get('content_key')
+        if content_key and self.plexdb.source_count(content_key,
+                                                    db_item['plex_type']):
+            LOG.info('Keeping Kodi item %s: still on another Plex server',
+                     db_item['kodi_id'])
+            return
 
         # EPISODE #####
         if db_item['plex_type'] == v.PLEX_TYPE_EPISODE:
@@ -153,14 +162,31 @@ class Show(TvShowMixin, ItemBase):
                       section_id or api.library_section_id())
             return
         plex_id = api.plex_id
-        show = self.plexdb.show(plex_id)
-        if not show:
-            update_item = False
-            kodi_id = self.kodidb.new_show_id()
-        else:
+        server_id = app.CONN.current_id
+        content_key = api.content_key
+        show = self.plexdb.item_by_source(server_id, plex_id,
+                                          v.PLEX_TYPE_SHOW)
+        existing_content = self.plexdb.item_by_content(
+            content_key, v.PLEX_TYPE_SHOW) if content_key else None
+        if show:
             update_item = True
             kodi_id = show['kodi_id']
             kodi_pathid = show['kodi_pathid']
+        elif existing_content:
+            LOG.info('Deduplicating show %s - also on server %s',
+                     api.title(), server_id)
+            self.plexdb.add_show(plex_id=plex_id,
+                                 plex_guid=api.plex_guid,
+                                 checksum=api.checksum(),
+                                 section_id=section_id,
+                                 kodi_id=existing_content['kodi_id'],
+                                 kodi_pathid=existing_content.get('kodi_pathid'),
+                                 last_sync=self.last_sync,
+                                 content_key=content_key)
+            return
+        else:
+            update_item = False
+            kodi_id = self.kodidb.new_show_id()
 
         # GET THE FILE AND PATH #####
         if app.SYNC.direct_paths:
@@ -259,7 +285,8 @@ class Show(TvShowMixin, ItemBase):
                              section_id=section_id,
                              kodi_id=kodi_id,
                              kodi_pathid=kodi_pathid,
-                             last_sync=self.last_sync)
+                             last_sync=self.last_sync,
+                             content_key=content_key)
 
     @staticmethod
     def _prioritize_provider_id(unique_ids):
@@ -285,13 +312,20 @@ class Season(TvShowMixin, ItemBase):
                       section_id or api.library_section_id())
             return
         plex_id = api.plex_id
-        season = self.plexdb.season(plex_id)
+        server_id = app.CONN.current_id
+        content_key = api.content_key
+        season = self.plexdb.item_by_source(server_id, plex_id,
+                                            v.PLEX_TYPE_SEASON)
+        existing_content = self.plexdb.item_by_content(
+            content_key, v.PLEX_TYPE_SEASON) if content_key else None
         if not season:
             update_item = False
         else:
             update_item = True
         show_id = api.parent_id()
-        show = self.plexdb.show(show_id)
+        show = self.plexdb.item_by_source(server_id, show_id,
+                                          v.PLEX_TYPE_SHOW) \
+            or self.plexdb.show(show_id)
         if not show:
             LOG.warn('Parent TV show %s not found in DB, adding it', show_id)
             show_xml = PF.GetPlexMetadata(show_id)
@@ -310,6 +344,19 @@ class Season(TvShowMixin, ItemBase):
                 LOG.error('Still could not find parent tv show %s', show_id)
                 return
         parent_id = show['kodi_id']
+        if not update_item and existing_content:
+            LOG.info('Deduplicating season %s - also on server %s',
+                     api.season_name(), server_id)
+            self.plexdb.add_season(plex_id=plex_id,
+                                   plex_guid=api.plex_guid,
+                                   checksum=api.checksum(),
+                                   section_id=section_id,
+                                   show_id=show_id,
+                                   parent_id=parent_id,
+                                   kodi_id=existing_content['kodi_id'],
+                                   last_sync=self.last_sync,
+                                   content_key=content_key)
+            return
         if app.SYNC.artwork:
             parent_artwork = api.artwork(kodi_id=parent_id,
                                          kodi_type=v.KODI_TYPE_SHOW)
@@ -348,7 +395,8 @@ class Season(TvShowMixin, ItemBase):
                                show_id=show_id,
                                parent_id=parent_id,
                                kodi_id=kodi_id,
-                               last_sync=self.last_sync)
+                               last_sync=self.last_sync,
+                               content_key=content_key)
 
 
 class Episode(TvShowMixin, ItemBase):
@@ -364,7 +412,12 @@ class Episode(TvShowMixin, ItemBase):
                       section_id or api.library_section_id())
             return
         plex_id = api.plex_id
-        episode = self.plexdb.episode(plex_id)
+        server_id = app.CONN.current_id
+        content_key = api.content_key
+        episode = self.plexdb.item_by_source(server_id, plex_id,
+                                             v.PLEX_TYPE_EPISODE)
+        existing_content = self.plexdb.item_by_content(
+            content_key, v.PLEX_TYPE_EPISODE) if content_key else None
         if not episode:
             update_item = False
             kodi_id = self.kodidb.new_episode_id()
@@ -379,7 +432,9 @@ class Episode(TvShowMixin, ItemBase):
         airs_before_episode = "-1"
 
         # The grandparent TV show
-        show = self.plexdb.show(api.show_id())
+        show = self.plexdb.item_by_source(server_id, api.show_id(),
+                                           v.PLEX_TYPE_SHOW) \
+            or self.plexdb.show(api.show_id())
         if not show:
             LOG.warn('Grandparent TV show %s not found in DB, adding it', api.show_id())
             show_xml = PF.GetPlexMetadata(api.show_id())
@@ -393,14 +448,18 @@ class Episode(TvShowMixin, ItemBase):
                  kodidb=self.kodidb).add_update(show_xml[0],
                                                 section_name,
                                                 section_id)
-            show = self.plexdb.show(api.show_id())
+            show = self.plexdb.item_by_source(server_id, api.show_id(),
+                                               v.PLEX_TYPE_SHOW) \
+                or self.plexdb.show(api.show_id())
             if not show:
                 LOG.error('Still could not find grandparent tv show %s', api.show_id())
                 return
         grandparent_id = show['kodi_id']
 
         # The parent Season
-        season = self.plexdb.season(api.season_id())
+        season = self.plexdb.item_by_source(server_id, api.season_id(),
+                                             v.PLEX_TYPE_SEASON) \
+            or self.plexdb.season(api.season_id())
         if not season and api.season_id():
             LOG.warn('Parent season %s not found in DB, adding it', api.season_id())
             season_xml = PF.GetPlexMetadata(api.season_id())
@@ -414,11 +473,33 @@ class Episode(TvShowMixin, ItemBase):
                    kodidb=self.kodidb).add_update(season_xml[0],
                                                   section_name,
                                                   section_id)
-            season = self.plexdb.season(api.season_id())
+            season = self.plexdb.item_by_source(server_id, api.season_id(),
+                                                 v.PLEX_TYPE_SEASON) \
+                or self.plexdb.season(api.season_id())
             if not season:
                 LOG.error('Still could not find parent season %s', api.season_id())
                 return
         parent_id = season['kodi_id'] if season else None
+
+        if not update_item and existing_content:
+            LOG.info('Deduplicating episode %s - also on server %s',
+                     api.title(), server_id)
+            self.plexdb.add_episode(
+                plex_id=plex_id,
+                plex_guid=api.plex_guid,
+                checksum=api.checksum(),
+                section_id=section_id,
+                show_id=api.show_id(),
+                grandparent_id=grandparent_id,
+                season_id=api.season_id(),
+                parent_id=parent_id,
+                kodi_id=existing_content['kodi_id'],
+                kodi_fileid=existing_content.get('kodi_fileid'),
+                kodi_fileid_2=existing_content.get('kodi_fileid_2'),
+                kodi_pathid=existing_content.get('kodi_pathid'),
+                last_sync=self.last_sync,
+                content_key=content_key)
+            return
 
         fullpath, path, filename = api.fullpath()
         if app.SYNC.direct_paths and not fullpath.startswith('http'):
@@ -510,7 +591,8 @@ class Episode(TvShowMixin, ItemBase):
                                     kodi_fileid=kodi_fileid,
                                     kodi_fileid_2=kodi_fileid_2,
                                     kodi_pathid=kodi_pathid,
-                                    last_sync=self.last_sync)
+                                    last_sync=self.last_sync,
+                                    content_key=content_key)
         # OR ADD THE EPISODE #####
         else:
             LOG.info("ADD episode plex_id: %s - %s", plex_id, api.title())
@@ -581,7 +663,8 @@ class Episode(TvShowMixin, ItemBase):
                                     kodi_fileid=kodi_fileid,
                                     kodi_fileid_2=kodi_fileid_2,
                                     kodi_pathid=kodi_pathid,
-                                    last_sync=self.last_sync)
+                                    last_sync=self.last_sync,
+                                    content_key=content_key)
 
         self.kodidb.modify_streams(kodi_fileid,  # and NOT kodi_fileid_2
                                    api.mediastreams(),

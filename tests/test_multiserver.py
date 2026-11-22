@@ -39,6 +39,14 @@ class TestServerRegistry(unittest.TestCase):
             path = os.path.join(PROFILE, name)
             if os.path.isfile(path):
                 os.remove(path)
+        # Earlier tests may have mirrored a different primary server into the
+        # legacy settings; keep the fixture deterministic.
+        SETTINGS.update({
+            'plex_machineIdentifier': 'server-A',
+            'ipaddress': '192.168.1.10',
+            'port': '32400',
+            'https': 'false',
+        })
 
     def test_legacy_import(self):
         registry = ServerRegistry()
@@ -67,6 +75,17 @@ class TestServerRegistry(unittest.TestCase):
 
         self.assertTrue(registry.remove('server-B'))
         self.assertEqual(len(ServerRegistry()), 1)
+
+    def test_set_enabled_persists(self):
+        registry = ServerRegistry()
+        registry.add(Server('server-B', name='B', host='10.0.0.2', port=32400))
+        self.assertTrue(registry.set_enabled('server-B', False))
+        self.assertEqual([server.machine_identifier
+                          for server in registry.enabled_servers()],
+                         ['server-A'])
+        reloaded = ServerRegistry()
+        self.assertFalse(reloaded.get('server-B').enabled)
+        self.assertEqual(len(reloaded.enabled_servers()), 1)
 
     def test_mirror_legacy_points_at_primary(self):
         registry = ServerRegistry()

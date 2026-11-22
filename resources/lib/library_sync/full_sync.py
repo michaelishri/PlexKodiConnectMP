@@ -305,6 +305,8 @@ class FullSync(common.LibrarySyncMixin, bg.KillableThread):
             if not servers:
                 LOG.error('No Plex servers configured - cannot sync')
                 return
+            if not sections.pick_libraries_all(self):
+                return
             for server in servers:
                 if self.should_cancel():
                     return

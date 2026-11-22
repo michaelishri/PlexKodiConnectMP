@@ -1187,6 +1187,10 @@ msgctxt "#39450"
 msgid "Manage Plex servers"
 msgstr ""
 
+msgctxt "#39451"
+msgid "Enable Plex servers for sync"
+msgstr ""
+
 # PKC Settings - Sync
 msgctxt "#39051"
 msgid "Wait before sync new/changed PMS item [s]"

@@ -252,6 +252,17 @@ class ServerRegistry(object):
             self.mirror_legacy()
         return True
 
+    def set_enabled(self, machine_identifier, enabled):
+        """Enable or disable one Plex server for library syncing."""
+        server = self._servers.get(machine_identifier)
+        if server is None:
+            return False
+        server.enabled = bool(enabled)
+        self.save()
+        LOG.info('Plex server %s enabled: %s', server.name or
+                 server.machine_identifier, server.enabled)
+        return True
+
     def enabled_servers(self):
         return [server for server in self._servers.values() if server.enabled]
 

@@ -1,3 +1,12 @@
+version 3.14.0 (multi-server fork):
+- Add "Enable Plex servers for sync" in the addon settings and server manager
+- Adding a Plex server now immediately requests a full library sync
+- Library picker now lists libraries from all enabled servers with the
+  server name in brackets, e.g. "TV Shows (Jason's Plex Server)"
+- Sections are scoped by server in the Plex database
+- Deduplicate shows, seasons and episodes across servers (in addition to
+  movies) so overlapping content appears once with a play-time server choice
+
 version 3.13.7 (multi-server fork):
 - Fix focus error when opening the custom selection dialog
 

@@ -69,6 +69,10 @@ def triage(mode, params, path, arguments, itemid):
         LOG.info('Managing Plex servers requested')
         transfer.plex_command('manage_servers')
         return
+    elif mode == 'selectServers':
+        LOG.info('Selecting enabled Plex servers requested')
+        transfer.plex_command('select_enabled_servers')
+        return
     elif mode == 'deviceid':
         LOG.info('New PKC UUID / unique device id requested')
         transfer.plex_command('generate_new_uuid')

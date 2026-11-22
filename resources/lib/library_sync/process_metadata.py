@@ -41,8 +41,9 @@ class ProcessMetadataThread(common.LibrarySyncMixin,
             # processed every item of the section
             with PlexDB() as plexdb:
                 # Set the new time mark for the next delta sync
-                plexdb.update_section_last_sync(self.last_section.section_id,
-                                                self.current_time)
+                plexdb.update_section_last_sync(
+                    self.last_section.section_id, self.current_time,
+                    server_id=self.last_section.server_id)
             LOG.info('Finished processing section successfully: %s',
                      self.last_section)
         elif self.last_section and not self.last_section.sync_successful:

@@ -96,6 +96,17 @@
                         <close>true</close>
                     </control>
                 </setting>
+                <setting id="ykqvbmnxwrthsjdplgaucfeioz" type="action" label="39451" help="">
+                    <!-- Enable Plex servers for sync -->
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect.ms?mode=selectServers)</data>
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <control type="button" format="action">
+                        <close>true</close>
+                    </control>
+                </setting>
             </group>
             <group id="3">
                 <setting id="plex_serverowned" type="boolean" label="30031" help=""> <!-- I own this Plex Media Server -->

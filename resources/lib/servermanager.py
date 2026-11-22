@@ -18,7 +18,14 @@ ADD_DISCOVERED = 'add-discovered'
 ADD_MANUAL = 'add-manual'
 REMOVE = 'remove'
 PRIMARY = 'primary'
+ENABLE = 'enable'
 DONE = 'done'
+
+
+def _request_full_sync():
+    """Rebuild the Kodi library after the server configuration changed."""
+    utils.settings('SyncInstallRunDone', value='false')
+    app.SYNC.run_lib_scan = 'full'
 
 
 def _server_labels():
@@ -78,8 +85,10 @@ def _add_from_plex_tv():
     if server is None:
         return
     app.CONN.add_server(server)
+    _request_full_sync()
     utils.messageDialog(utils.lang(29999),
-                        'Added %s' % (server.name or server.machine_identifier))
+                        'Added %s. A full library sync will include it.'
+                        % (server.name or server.machine_identifier))
 
 
 def _add_manually():
@@ -89,8 +98,10 @@ def _add_manually():
     if server is None:
         return
     app.CONN.add_server(server)
+    _request_full_sync()
     utils.messageDialog(utils.lang(29999),
-                        'Added %s' % (server.name or server.machine_identifier))
+                        'Added %s. A full library sync will include it.'
+                        % (server.name or server.machine_identifier))
 
 
 def _remove_server():
@@ -108,8 +119,7 @@ def _remove_server():
     from .plex_db import PlexDB
     with PlexDB() as plexdb:
         plexdb.remove_sources_for_server(server.machine_identifier)
-    utils.settings('SyncInstallRunDone', value='false')
-    app.SYNC.run_lib_scan = 'full'
+    _request_full_sync()
 
 
 def _set_primary():
@@ -122,13 +132,43 @@ def _set_primary():
     app.CONN.load()
 
 
+def select_enabled_servers():
+    """Let the user choose which configured servers PKC syncs from."""
+    servers = app.CONN.servers()
+    if not servers:
+        utils.messageDialog(utils.lang(29999),
+                            'No Plex servers configured yet')
+        return
+    selected = [index for index, server in enumerate(servers)
+                if server.enabled]
+    choice = selectdialog.select_multi('Enable Plex servers for sync',
+                                       _server_labels(),
+                                       selected=selected)
+    if choice is None:
+        return
+    changed = False
+    from .plex_db import PlexDB
+    with PlexDB() as plexdb:
+        for index, server in enumerate(servers):
+            enabled = index in choice
+            if server.enabled == enabled:
+                continue
+            app.CONN.registry.set_enabled(server.machine_identifier, enabled)
+            changed = True
+            if not enabled:
+                plexdb.remove_sources_for_server(server.machine_identifier)
+    if changed:
+        _request_full_sync()
+
+
 def manage():
     """Show the server manager until the user chooses Done."""
-    actions = (ADD_DISCOVERED, ADD_MANUAL, REMOVE, PRIMARY, DONE)
+    actions = (ADD_DISCOVERED, ADD_MANUAL, REMOVE, PRIMARY, ENABLE, DONE)
     labels = ('Add Plex server from plex.tv',
               'Add Plex server manually',
               'Remove Plex server',
               'Set primary Plex server',
+              'Enable Plex servers for sync',
               'Done')
     while True:
         choices = _server_labels() + labels
@@ -154,3 +194,5 @@ def manage():
             _remove_server()
         elif action == PRIMARY:
             _set_primary()
+        elif action == ENABLE:
+            select_enabled_servers()

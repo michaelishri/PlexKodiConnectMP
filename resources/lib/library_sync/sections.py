@@ -68,6 +68,11 @@ class Section(object):
     sync_to_kodi
     """
     def __init__(self, index=None, xml_element=None, section_db_element=None):
+        # Server this section belongs to (Plex sections are only unique per PMS)
+        self.server_id = app.CONN.current_id
+        server = app.CONN.get_server(self.server_id)
+        self.server_name = (server.name or server.machine_identifier
+                            if server else self.server_id or '')
         # Unique Plex id of this Plex library section
         self._section_id = None  # int
         # Building block for window variable
@@ -138,7 +143,8 @@ class Section(object):
         """
         if not isinstance(section, Section):
             return False
-        return (self.section_id == section.section_id and
+        return (self.server_id == section.server_id and
+                self.section_id == section.section_id and
                 self.name == section.name and
                 (self.plex_type == section.plex_type if self.plex_type else
                  self.section_type == section.section_type))
@@ -212,6 +218,10 @@ class Section(object):
         self.kodi_tagid = section_db_element['kodi_tagid']
         self.sync_to_kodi = section_db_element['sync_to_kodi']
         self.last_sync = section_db_element['last_sync']
+        self.server_id = section_db_element.get('server_id') or self.server_id
+        server = app.CONN.get_server(self.server_id)
+        self.server_name = (server.name or server.machine_identifier
+                            if server else self.server_id or '')
 
     def from_xml(self, xml_element):
         """
@@ -452,10 +462,10 @@ class Section(object):
         Removes this sections completely from the Plex DB
         """
         if plexdb:
-            plexdb.remove_section(self.section_id)
+            plexdb.remove_section(self.section_id, server_id=self.server_id)
         else:
             with PlexDB(lock=False) as plexdb:
-                plexdb.remove_section(self.section_id)
+                plexdb.remove_section(self.section_id, server_id=self.server_id)
 
     def remove(self):
         """
@@ -567,6 +577,114 @@ def _delete_kodi_db_items(section):
                         typus.remove(plex_id)
             if len(plex_ids) < BATCH_SIZE:
                 break
+    return True
+
+
+
+
+def library_label(section, server):
+    """Label shown in the combined library picker."""
+    return '%s (%s)' % (section.name, server.name or server.machine_identifier)
+
+
+def pick_libraries_all(parent_self, force=False):
+    """
+    Ask once for the libraries to sync from ALL enabled Plex servers.
+
+    Labels include the server name, e.g. "TV Shows (Jason's Plex Server)", so
+    overlapping library names from different servers remain distinguishable.
+    """
+    global SHOULD_CANCEL
+    servers = app.CONN.enabled_servers()
+    if not servers:
+        LOG.error('No enabled Plex servers - cannot pick libraries')
+        return False
+    asked = _asked_servers()
+    if not force and all(server.machine_identifier in asked
+                         for server in servers):
+        return True
+
+    SHOULD_CANCEL = parent_self.should_cancel
+    try:
+        collected = {}
+        for server in servers:
+            with app.using_server(server.machine_identifier):
+                if SHOULD_CANCEL():
+                    return False
+                xml = PF.get_plex_sections()
+                if xml is None:
+                    LOG.error('Could not download sections from %s', server.name)
+                    return False
+                sections = []
+                for index, xml_element in enumerate(xml.findall('Directory')):
+                    api = API(xml_element)
+                    if api.plex_type in v.UNSUPPORTED_PLEX_TYPES:
+                        continue
+                    sections.append(Section(index=index,
+                                            xml_element=xml_element))
+                with PlexDB(lock=False) as plexdb:
+                    old_sections = [Section(section_db_element=entry)
+                                    for entry in plexdb.all_sections()]
+                _retrieve_old_settings(sections, old_sections)
+                collected[server.machine_identifier] = (sections,
+                                                        old_sections)
+
+        selectable = []
+        labels = []
+        preselected = []
+        for server in servers:
+            sections, old_sections = collected[server.machine_identifier]
+            for section in sections:
+                if (not app.SYNC.enable_music and
+                        section.section_type == v.PLEX_TYPE_ARTIST):
+                    continue
+                if section.section_type == v.PLEX_TYPE_PHOTO:
+                    continue
+                selectable.append((server, section))
+                labels.append(library_label(section, server))
+                if section.sync_to_kodi:
+                    preselected.append(len(selectable) - 1)
+
+        from ..windows import selectdialog
+        choice = selectdialog.select_multi(utils.lang(30524), labels,
+                                           selected=preselected)
+        if choice is None:
+            LOG.info('User cancelled library selection')
+            return False
+        for index, (server, section) in enumerate(selectable):
+            section.sync_to_kodi = index in choice
+
+        for server in servers:
+            sections, old_sections = collected[server.machine_identifier]
+            with app.using_server(server.machine_identifier):
+                _save_sections_to_plex_db(sections)
+                _delete_obsolete_sections(sections, old_sections)
+                clear_window_vars()
+                for section in sections:
+                    section.to_kodi()
+                utils.window('Plex.nodes.total', str(len(sections)))
+                _mark_server_asked(server.machine_identifier)
+        app.SYNC.sections = [section for server in servers
+                             for section in collected[server.machine_identifier][0]
+                             if section.sync_to_kodi]
+        return True
+    finally:
+        SHOULD_CANCEL = None
+
+
+def _delete_obsolete_sections(sections, old_sections):
+    """Remove sections no longer present on the current Plex server."""
+    for old_section in old_sections:
+        for section in sections:
+            if old_section == section:
+                break
+        else:
+            if not old_section.sync_to_kodi:
+                continue
+            LOG.info('Deleting entire section: %s', old_section)
+            if not _delete_kodi_db_items(old_section):
+                return False
+            old_section.remove()
     return True
 
 
@@ -698,19 +816,8 @@ def _sync_from_pms(pick_libraries):
 
     # Delete all old sections that are obsolete
     # This will also delete sections whose name (or type) have changed
-    for old_section in old_sections:
-        for section in sections:
-            if old_section == section:
-                break
-        else:
-            if not old_section.sync_to_kodi:
-                continue
-            LOG.info('Deleting entire section: %s', old_section)
-            # Remove all linked items
-            if not _delete_kodi_db_items(old_section):
-                return False
-            # Remove the section itself
-            old_section.remove()
+    if not _delete_obsolete_sections(sections, old_sections):
+        return False
 
     # Clear all existing window vars because we did NOT remove them with the
     # command section.remove()

@@ -492,6 +492,10 @@ class Service(object):
                     from . import servermanager
                     task = backgroundthread.FunctionAsTask(
                         servermanager.manage, None)
+                elif plex_command == 'select_enabled_servers':
+                    from . import servermanager
+                    task = backgroundthread.FunctionAsTask(
+                        servermanager.select_enabled_servers, None)
                 elif plex_command == 'switch_plex_user':
                     task = backgroundthread.FunctionAsTask(
                         self.switch_plex_user, None)
@@ -511,7 +515,7 @@ class Service(object):
                     app.SYNC.run_lib_scan = 'textures'
                 elif plex_command == 'select-libraries':
                     from .library_sync import sections
-                    sections.sync_from_pms(self, pick_libraries=True)
+                    sections.pick_libraries_all(self, force=True)
                 elif plex_command == 'refreshplaylist':
                     self.reset_playlists_and_nodes()
                 elif plex_command == 'RESET-PKC':
