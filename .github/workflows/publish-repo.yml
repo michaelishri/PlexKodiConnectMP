@@ -52,7 +52,7 @@ jobs:
         run: |
           gh release create "${GITHUB_REF_NAME}" \
             build/pages/repository.plexkodiconnect.ms-*.zip \
-            build/pages/repo/bin/*.zip \
+            build/pages/repo/bin/*/*.zip \
             --target "${GITHUB_SHA}" \
             --title "PlexKodiConnect Multi-Server ${GITHUB_REF_NAME}" \
             --generate-notes
