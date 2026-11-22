@@ -14,7 +14,7 @@
             <posy>0</posy>
             <width>1920</width>
             <height>1080</height>
-            <texture>plugin.video.plexkodiconnect.ms/sign_in/plexpass.jpg</texture>
+            <texture>plugin.video.plexkodiconnect/sign_in/plexpass.jpg</texture>
         </control>
 
         <control type="button" id="100">
