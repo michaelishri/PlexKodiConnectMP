@@ -1,3 +1,24 @@
+version 3.15.0 (multi-server fork):
+- Overhaul the addon settings for clarity: regroup everything into a logical
+  user flow (Connection, Plex Account, Library Sync, Playback, File Paths,
+  Artwork, Kodi Interface, Remote Control, Advanced) with labelled sections
+  inside each category
+- Rewrite confusing setting names (e.g. "Playback Mode" is now "Library
+  paths", "Preferred playback method" is now "Streaming method") and give
+  every setting an explanatory help text shown at the bottom of the settings
+  screen
+- Move misplaced settings to where users look for them: playback mode and
+  network credentials to Playback, trailers/extras to Playback, Plex
+  Companion and Amazon Alexa to a new Remote Control category, delete
+  confirmation to Kodi Interface
+- Remove settings that did nothing in this fork ("Offer delete after
+  playback", "Jump back on resume", "Direct stream music library", "Sync
+  empty TV Shows", "Ignore specials in next episodes") and the two status
+  rows that were never updated ("Background sync connection", "Alexa
+  connection status")
+- Reworded labels use new string IDs, so they display the new English text
+  immediately; translations for unchanged labels keep working
+
 version 3.14.2 (multi-server fork):
 - Fix selection dialogs so keyboard/remote input is received by the dialog
   instead of the add-on settings window behind it (use Kodi's real modal loop)

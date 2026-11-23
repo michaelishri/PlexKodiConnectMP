@@ -172,11 +172,11 @@ def install():
         'limitindex': '200', 'backgroundsync_saftyMargin': '5',
         'useDirectPaths': '0', 'trailerNumber': '3',
         'enableAutoHideSkipTime': '10', 'audioStreamPick': '0',
-        'subtitleStreamPick': '0', 'resumeJumpBack': '10',
+        'subtitleStreamPick': '0',
         'playType': '0', 'transcoderVideoQualities': '5',
         'maxVideoQualities': '11', 'transcodeH265': '0',
         'transcodeAV1': '0', 'audioBoost': '0', 'subtitleSize': '100',
-        'kodi_video_cache': '20971520', 'failedCount': '0',
+        'kodi_video_cache': '20971520',
         'widgetLimit': '30', 'fetch_pms_item_number': '50',
         'startupDelay': '0',
     }

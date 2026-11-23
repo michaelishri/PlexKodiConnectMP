@@ -1744,3 +1744,1174 @@ msgstr ""
 msgctxt "#39726"
 msgid "Enable transcoding using h265/HEVC codec (restart Kodi!)"
 msgstr ""
+
+# =============================================================================
+# Settings revamp: category, group and setting labels plus help texts.
+# New IDs were assigned so reworded labels show in English immediately;
+# unchanged labels keep their original IDs above.
+# =============================================================================
+
+# PKC Settings - Category names
+msgctxt "#39730"
+msgid "Plex Account"
+msgstr ""
+
+# PKC Settings - Category names
+msgctxt "#39731"
+msgid "Library Sync"
+msgstr ""
+
+# PKC Settings - Category names
+msgctxt "#39732"
+msgid "File Paths"
+msgstr ""
+
+# PKC Settings - Category names
+msgctxt "#39733"
+msgid "Kodi Interface"
+msgstr ""
+
+# PKC Settings - Category names
+msgctxt "#39734"
+msgid "Remote Control"
+msgstr ""
+
+# PKC Settings - Group names: Connection
+msgctxt "#39735"
+msgid "Plex Media Server"
+msgstr ""
+
+# PKC Settings - Group names: Connection
+msgctxt "#39736"
+msgid "Connection options"
+msgstr ""
+
+# PKC Settings - Group names: Plex Account
+msgctxt "#39737"
+msgid "Sign-in behaviour"
+msgstr ""
+
+# PKC Settings - Group names: Library Sync
+msgctxt "#39738"
+msgid "Libraries"
+msgstr ""
+
+# PKC Settings - Group names: Library Sync
+msgctxt "#39739"
+msgid "Automatic sync"
+msgstr ""
+
+# PKC Settings - Group names: Library Sync
+msgctxt "#39740"
+msgid "Playlists"
+msgstr ""
+
+# PKC Settings - Group names: Library Sync
+msgctxt "#39741"
+msgid "Notifications"
+msgstr ""
+
+# PKC Settings - Group names: Library Sync
+msgctxt "#39742"
+msgid "Performance"
+msgstr ""
+
+# PKC Settings - Group names: Playback
+msgctxt "#39743"
+msgid "How Kodi opens media"
+msgstr ""
+
+# PKC Settings - Group names: Playback
+msgctxt "#39744"
+msgid "Streaming and transcoding"
+msgstr ""
+
+# PKC Settings - Group names: Playback
+msgctxt "#39745"
+msgid "Trailers and extras"
+msgstr ""
+
+# PKC Settings - Group names: Playback
+msgctxt "#39746"
+msgid "Skip intro, credits and commercials"
+msgstr ""
+
+# PKC Settings - Group names: Playback
+msgctxt "#39747"
+msgid "Audio and subtitle streams"
+msgstr ""
+
+# PKC Settings - Group names: File Paths
+msgctxt "#39748"
+msgid "Path translation"
+msgstr ""
+
+# PKC Settings - Group names: Artwork
+msgctxt "#39749"
+msgid "Artwork sources"
+msgstr ""
+
+# PKC Settings - Group names: Artwork
+msgctxt "#39750"
+msgid "Artwork caching"
+msgstr ""
+
+# PKC Settings - Group names: Artwork
+msgctxt "#39751"
+msgid "Artwork status"
+msgstr ""
+
+# PKC Settings - Group names: Kodi Interface
+msgctxt "#39752"
+msgid "Context menu"
+msgstr ""
+
+# PKC Settings - Group names: Kodi Interface
+msgctxt "#39753"
+msgid "Widgets and views"
+msgstr ""
+
+# PKC Settings - Group names: Kodi Interface
+msgctxt "#39754"
+msgid "TV show widgets"
+msgstr ""
+
+# PKC Settings - Group names: Kodi Interface
+msgctxt "#39755"
+msgid "Movie widgets"
+msgstr ""
+
+# PKC Settings - Group names: Remote Control
+msgctxt "#39756"
+msgid "Plex Companion"
+msgstr ""
+
+# PKC Settings - Group names: Remote Control
+msgctxt "#39757"
+msgid "Amazon Alexa"
+msgstr ""
+
+# PKC Settings - Group names: Advanced
+msgctxt "#39758"
+msgid "Startup"
+msgstr ""
+
+# PKC Settings - Group names: Advanced
+msgctxt "#39759"
+msgid "Maintenance"
+msgstr ""
+
+# PKC Settings - Group names: Advanced
+msgctxt "#39760"
+msgid "Troubleshooting"
+msgstr ""
+
+# PKC Settings - Connection: status displays and actions
+msgctxt "#39761"
+msgid "Current Plex server"
+msgstr ""
+
+# PKC Settings - Connection: status displays and actions
+msgctxt "#39762"
+msgid "Server address"
+msgstr ""
+
+# PKC Settings - Connection: status displays and actions
+msgctxt "#39763"
+msgid "Server port"
+msgstr ""
+
+# PKC Settings - Connection: status displays and actions
+msgctxt "#39764"
+msgid "Add, remove or enable Plex servers"
+msgstr ""
+
+# PKC Settings - Connection
+msgctxt "#39765"
+msgid "Connect using HTTPS"
+msgstr ""
+
+# PKC Settings - Connection
+msgctxt "#39766"
+msgid "Notify when the Plex server goes offline"
+msgstr ""
+
+# PKC Settings - Plex Account: status displays and actions
+msgctxt "#39767"
+msgid "plex.tv sign-in status"
+msgstr ""
+
+# PKC Settings - Plex Account: status displays and actions
+msgctxt "#39768"
+msgid "Signed-in plex.tv account"
+msgstr ""
+
+# PKC Settings - Plex Account: status displays and actions
+msgctxt "#39769"
+msgid "Active Plex home user"
+msgstr ""
+
+# PKC Settings - Plex Account
+msgctxt "#39770"
+msgid "Sign in to plex.tv automatically"
+msgstr ""
+
+# PKC Settings - Plex Account: actions
+msgctxt "#39771"
+msgid "Switch Plex home user"
+msgstr ""
+
+# PKC Settings - Plex Account: actions
+msgctxt "#39772"
+msgid "Sign in or out of plex.tv"
+msgstr ""
+
+# PKC Settings - Plex Account
+msgctxt "#39773"
+msgid "Require sign-in every time Kodi restarts"
+msgstr ""
+
+# PKC Settings - Remote Control
+msgctxt "#39774"
+msgid "Accept control from Plex apps (Companion)"
+msgstr ""
+
+# PKC Settings - Remote Control
+msgctxt "#39775"
+msgid "Device name shown to Plex apps"
+msgstr ""
+
+# PKC Settings - Remote Control
+msgctxt "#39776"
+msgid "Companion port"
+msgstr ""
+
+# PKC Settings - Remote Control
+msgctxt "#39777"
+msgid "Companion update port"
+msgstr ""
+
+# PKC Settings - Remote Control
+msgctxt "#39778"
+msgid "Enable Amazon Alexa control"
+msgstr ""
+
+# PKC Settings - Library Sync: actions
+msgctxt "#39779"
+msgid "Choose which Plex libraries sync to Kodi"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39780"
+msgid "Sync music libraries"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39781"
+msgid "Full library sync interval (minutes)"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39782"
+msgid "Catch up on sync when the screensaver ends"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39783"
+msgid "Sync changes immediately in the background"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39784"
+msgid "Wait before syncing new items (seconds)"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39785"
+msgid "Pause background sync during playback"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39786"
+msgid "Sync playlists"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39787"
+msgid "Only sync Kodi playlists starting with"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39788"
+msgid "Only sync Plex playlists starting with"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39789"
+msgid "Show sync progress"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39790"
+msgid "Also show progress for playstate sync"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39791"
+msgid "Check media files are accessible during sync"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39792"
+msgid "Simultaneous download threads"
+msgstr ""
+
+# PKC Settings - Library Sync
+msgctxt "#39793"
+msgid "Items requested per batch"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39794"
+msgid "Library paths"
+msgstr ""
+
+# PKC Settings - Playback: options for "How Kodi opens media"
+msgctxt "#39795"
+msgid "Through PKC (recommended)"
+msgstr ""
+
+# PKC Settings - Playback: options for "How Kodi opens media"
+msgctxt "#39796"
+msgid "Direct file paths"
+msgstr ""
+
+# PKC Settings - Playback: actions
+msgctxt "#39797"
+msgid "Network credentials for direct paths"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39798"
+msgid "Streaming method"
+msgstr ""
+
+# PKC Settings - Playback: options for "Streaming method"
+msgctxt "#39799"
+msgid "Automatic (recommended)"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39800"
+msgid "Transcoded video quality"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39801"
+msgid "Auto-adjust transcoding quality to connection speed"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39802"
+msgid "Transcode if video bitrate exceeds"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39803"
+msgid "Force transcode HEVC/H.265"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39804"
+msgid "Force transcode Hi10P (10-bit)"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39805"
+msgid "Transcode into HEVC/H.265 instead of H.264 (restart Kodi)"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39806"
+msgid "Audio boost when transcoding (per cent)"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39807"
+msgid "Burned-in subtitle size (per cent)"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39808"
+msgid "Let Plex pick audio and subtitles when transcoding"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39809"
+msgid "Play trailers before movies (Plex Pass)"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39810"
+msgid "Trailers to play before a movie"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39811"
+msgid "Show extras menu instead of playing a trailer"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39812"
+msgid "Show 'skip intro' button"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39813"
+msgid "Skip intros automatically"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39814"
+msgid "Show 'skip credits' button"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39815"
+msgid "Skip credits automatically"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39816"
+msgid "Show 'skip commercials' button"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39817"
+msgid "Skip commercials automatically"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39818"
+msgid "Automatically hide skip buttons"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39819"
+msgid "Seconds until skip buttons are hidden"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39820"
+msgid "Play the first version when several are present"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39821"
+msgid "Audio track chosen by"
+msgstr ""
+
+# PKC Settings - Playback
+msgctxt "#39822"
+msgid "Subtitles chosen by"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39823"
+msgid "Convert Windows UNC paths to smb://"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39824"
+msgid "Substitute custom paths per library type"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39825"
+msgid "Movies - original Plex path"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39826"
+msgid "Movies - replacement path"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39827"
+msgid "TV shows - original Plex path"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39828"
+msgid "TV shows - replacement path"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39829"
+msgid "Music - original Plex path"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39830"
+msgid "Music - replacement path"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39831"
+msgid "Photos - original Plex path"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39832"
+msgid "Photos - replacement path"
+msgstr ""
+
+# PKC Settings - File Paths
+msgctxt "#39833"
+msgid "Escape special characters in paths"
+msgstr ""
+
+# PKC Settings - Artwork
+msgctxt "#39834"
+msgid "Use artwork from the Plex server (recommended)"
+msgstr ""
+
+# PKC Settings - Artwork
+msgctxt "#39835"
+msgid "Pre-download artwork into Kodi's cache"
+msgstr ""
+
+# PKC Settings - Artwork
+msgctxt "#39836"
+msgid "Add extra artwork from FanartTV"
+msgstr ""
+
+# PKC Settings - Artwork
+msgctxt "#39837"
+msgid "Prefer Kodi artwork for collections"
+msgstr ""
+
+# PKC Settings - Artwork: actions
+msgctxt "#39838"
+msgid "Search FanartTV for missing artwork now"
+msgstr ""
+
+# PKC Settings - Artwork
+msgctxt "#39839"
+msgid "Show artwork caching notifications"
+msgstr ""
+
+# PKC Settings - Artwork
+msgctxt "#39840"
+msgid "Cache artwork during playback"
+msgstr ""
+
+# PKC Settings - Artwork: actions
+msgctxt "#39841"
+msgid "Cache all artwork now"
+msgstr ""
+
+# PKC Settings - Artwork: status displays
+msgctxt "#39842"
+msgid "Last FanartTV lookup"
+msgstr ""
+
+# PKC Settings - Artwork: status displays
+msgctxt "#39843"
+msgid "Last full artwork cache run"
+msgstr ""
+
+# PKC Settings - Kodi Interface
+msgctxt "#39844"
+msgid "Show 'Extras' in the context menu"
+msgstr ""
+
+# PKC Settings - Kodi Interface
+msgctxt "#39845"
+msgid "Skip delete confirmation dialog"
+msgstr ""
+
+# PKC Settings - Kodi Interface
+msgctxt "#39846"
+msgid "Show media version count instead of user ratings"
+msgstr ""
+
+# PKC Settings - Kodi Interface
+msgctxt "#39847"
+msgid "Maximum videos shown in widgets"
+msgstr ""
+
+# PKC Settings - Kodi Interface: actions
+msgctxt "#39848"
+msgid "Apply interface settings now (reload library nodes)"
+msgstr ""
+
+# PKC Settings - Kodi Interface
+msgctxt "#39849"
+msgid "On Deck: add show title to episodes"
+msgstr ""
+
+# PKC Settings - Kodi Interface
+msgctxt "#39850"
+msgid "On Deck: add season and episode number (SxxExx)"
+msgstr ""
+
+# PKC Settings - Kodi Interface
+msgctxt "#39851"
+msgid "Recently Added: include watched episodes"
+msgstr ""
+
+# PKC Settings - Kodi Interface
+msgctxt "#39852"
+msgid "Recently Added: add show title to episodes"
+msgstr ""
+
+# PKC Settings - Kodi Interface
+msgctxt "#39853"
+msgid "Recently Added: add season and episode number (SxxExx)"
+msgstr ""
+
+# PKC Settings - Kodi Interface
+msgctxt "#39854"
+msgid "Recently Added: include watched movies"
+msgstr ""
+
+# PKC Settings - Advanced
+msgctxt "#39855"
+msgid "Delay addon start (seconds)"
+msgstr ""
+
+# PKC Settings - Advanced: actions
+msgctxt "#39856"
+msgid "Repair the Kodi database (rescan all content)"
+msgstr ""
+
+# PKC Settings - Advanced: actions
+msgctxt "#39857"
+msgid "Generate a new device ID (e.g. to clone this Kodi)"
+msgstr ""
+
+# PKC Settings - Advanced: actions
+msgctxt "#39858"
+msgid "Reset the Kodi database and all PKC settings"
+msgstr ""
+
+# PKC Settings - Connection: help texts
+msgctxt "#39859"
+msgid "The Plex server PKC is currently connected to."
+msgstr ""
+
+# PKC Settings - Connection: help texts
+msgctxt "#39860"
+msgid "Network address of the connected Plex server."
+msgstr ""
+
+# PKC Settings - Connection: help texts
+msgctxt "#39861"
+msgid "Port of the connected Plex server."
+msgstr ""
+
+# PKC Settings - Connection: help texts
+msgctxt "#39862"
+msgid "Connect servers, enable them for sync, or remove them again."
+msgstr ""
+
+# PKC Settings - Connection: help texts
+msgctxt "#39863"
+msgid "Enable if you administer this Plex server yourself. Grants PKC additional rights, e.g. for deleting media."
+msgstr ""
+
+# PKC Settings - Connection: help texts
+msgctxt "#39864"
+msgid "Use an encrypted HTTPS connection to the Plex server. The server must be set up for HTTPS."
+msgstr ""
+
+# PKC Settings - Connection: help texts
+msgctxt "#39865"
+msgid "Optional client SSL certificate if the Plex server requires mutual TLS."
+msgstr ""
+
+# PKC Settings - Connection: help texts
+msgctxt "#39866"
+msgid "Show a Kodi notification when the connection to the Plex server is lost."
+msgstr ""
+
+# PKC Settings - Plex Account: help texts
+msgctxt "#39867"
+msgid "Whether PKC is currently signed in to plex.tv."
+msgstr ""
+
+# PKC Settings - Plex Account: help texts
+msgctxt "#39868"
+msgid "The plex.tv account used to sign in."
+msgstr ""
+
+# PKC Settings - Plex Account: help texts
+msgctxt "#39869"
+msgid "The Plex home user currently active on this device."
+msgstr ""
+
+# PKC Settings - Plex Account: help texts
+msgctxt "#39870"
+msgid "Signing in to plex.tv enables features such as syncing watched state across devices. Signing out stops all plex.tv communication."
+msgstr ""
+
+# PKC Settings - Plex Account: help texts
+msgctxt "#39871"
+msgid "Switch to another user of this Plex Home without signing out of plex.tv."
+msgstr ""
+
+# PKC Settings - Plex Account: help texts
+msgctxt "#39872"
+msgid "Automatically sign in to plex.tv when Kodi starts."
+msgstr ""
+
+# PKC Settings - Plex Account: help texts
+msgctxt "#39873"
+msgid "Ask which Plex user to use every time Kodi starts, instead of using the last one automatically."
+msgstr ""
+
+# PKC Settings - Remote Control: help texts
+msgctxt "#39874"
+msgid "Lets you fling (cast) media from Plex apps to this Kodi device and control playback remotely. Restart Kodi after changing."
+msgstr ""
+
+# PKC Settings - Remote Control: help texts
+msgctxt "#39875"
+msgid "Name under which this Kodi device appears to Plex apps."
+msgstr ""
+
+# PKC Settings - Remote Control: help texts
+msgctxt "#39876"
+msgid "Port for incoming Plex Companion connections. Only change if another service blocks this port."
+msgstr ""
+
+# PKC Settings - Remote Control: help texts
+msgctxt "#39877"
+msgid "Port for Companion status updates. Only change if another service blocks this port."
+msgstr ""
+
+# PKC Settings - Remote Control: help texts
+msgctxt "#39878"
+msgid "Allow Amazon Alexa voice commands to control playback on this device via Plex."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39879"
+msgid "Pick which Plex libraries are synced to the Kodi database."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39880"
+msgid "Also sync Plex music libraries to Kodi's music database. Restart Kodi after changing."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39881"
+msgid "How often the entire library is compared against the Plex server, catching anything the background sync missed."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39882"
+msgid "Run a full sync whenever the screensaver deactivates."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39883"
+msgid "Keep a permanent connection to the Plex server and import new or changed items as they happen."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39884"
+msgid "How long to wait before a new item is synced, giving the Plex server time to gather its metadata."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39885"
+msgid "Pause the background sync while media is playing to avoid playback interruptions."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39886"
+msgid "Two-way sync of playlists between Plex and Kodi. Restart Kodi after changing."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39887"
+msgid "Only sync certain Kodi playlists to Plex, selected by name."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39888"
+msgid "Kodi playlists whose names start with this text are synced to Plex."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39889"
+msgid "Only sync certain Plex playlists to Kodi, selected by name."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39890"
+msgid "Plex playlists whose names start with this text are synced to Kodi."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39891"
+msgid "Show a Kodi progress display while a library sync is running."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39892"
+msgid "Also show progress when only watched state and user data are synced."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39893"
+msgid "While syncing, verify that Kodi can access the media files. Helps detect broken direct paths early."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39894"
+msgid "How many threads download metadata from the Plex server during sync. Lower this on slow devices."
+msgstr ""
+
+# PKC Settings - Library Sync: help texts
+msgctxt "#39895"
+msgid "How many items PKC requests from the Plex server per batch. Lower this if the server struggles."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39896"
+msgid "Direct file paths let Kodi open media straight from the source (e.g. your NAS) and enable all Kodi features, but Kodi must be able to reach the same paths the Plex server uses. Keep 'Through PKC' if unsure. Changing this requires a database repair (see Advanced)."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39897"
+msgid "Store network credentials (e.g. for SMB shares) so Kodi can access media files via direct paths."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39898"
+msgid "How the video stream is delivered on playback. 'Automatic' picks the best method your setup supports."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39899"
+msgid "Target quality when the Plex server transcodes video."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39900"
+msgid "Let the server adapt transcoding quality to connection speed. Disable for Chromecast."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39901"
+msgid "Videos with a higher bitrate are always transcoded instead of streamed directly."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39902"
+msgid "Force the server to transcode HEVC/H.265 videos of the selected resolution and higher, e.g. if this device cannot decode them."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39903"
+msgid "Force the server to transcode AV1 videos of the selected resolution and higher, e.g. if this device cannot decode them."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39904"
+msgid "Force transcode Hi10P video (10-bit anime), which many devices cannot decode."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39905"
+msgid "Ask the server to transcode into HEVC/H.265 instead of H.264, saving bandwidth. Restart Kodi after changing."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39906"
+msgid "Raise the volume of the audio track on transcoded videos."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39907"
+msgid "Size of subtitles that the Plex server burns into the video, relative to the default size."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39908"
+msgid "Always transcode pictures instead of displaying them directly."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39909"
+msgid "When transcoding, let the server pick audio and subtitle streams using your Plex defaults."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39910"
+msgid "Always play trailers in the best available quality."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39911"
+msgid "Play trailers before a movie starts, like a cinema. Requires a Plex Pass."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39912"
+msgid "Ask whether trailers should be played each time."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39913"
+msgid "How many trailers are played before a movie."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39914"
+msgid "Show all of a movie's Plex extras to choose from instead of playing a single trailer."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39915"
+msgid "Offer a skip button when the Plex server marks an intro."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39916"
+msgid "Skip intros without asking."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39917"
+msgid "Offer a skip button when the Plex server marks credits."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39918"
+msgid "Skip credits without asking."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39919"
+msgid "Offer a skip button when the Plex server marks commercials."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39920"
+msgid "Skip commercials without asking."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39921"
+msgid "Hide skip buttons automatically after a while instead of showing them for the whole segment."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39922"
+msgid "How long skip buttons stay visible before being hidden."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39923"
+msgid "Start the first video version without asking when a movie has several versions."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39924"
+msgid "Whether Plex or Kodi chooses the audio track on playback start."
+msgstr ""
+
+# PKC Settings - Playback: help texts
+msgctxt "#39925"
+msgid "Whether Plex or Kodi chooses the subtitle track on playback start."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39926"
+msgid "Convert Windows network paths like \\\\myNas\\movies to smb://myNas/movies so Kodi can open them."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39927"
+msgid "Replace paths stored on the Plex server with your own paths, e.g. /volume1/media with smb://NAS/media. Used by sync and direct paths. Restart Kodi after changing."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39928"
+msgid "The path the Plex server stores for movie libraries."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39929"
+msgid "The path Kodi should use instead for movies."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39930"
+msgid "The path the Plex server stores for TV show libraries."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39931"
+msgid "The path Kodi should use instead for TV shows."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39932"
+msgid "The path the Plex server stores for music libraries."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39933"
+msgid "The path Kodi should use instead for music."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39934"
+msgid "The path the Plex server stores for photo libraries."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39935"
+msgid "The path Kodi should use instead for photos."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39936"
+msgid "Convert special characters in paths (e.g. space to %20) for network protocols."
+msgstr ""
+
+# PKC Settings - File Paths: help texts
+msgctxt "#39937"
+msgid "Characters that will not be escaped in http(s), dav(s) and (s)ftp paths."
+msgstr ""
+
+# PKC Settings - Artwork: help texts
+msgctxt "#39938"
+msgid "Use the artwork from your Plex server instead of artwork from other Kodi scrapers."
+msgstr ""
+
+# PKC Settings - Artwork: help texts
+msgctxt "#39939"
+msgid "Pre-download all artwork into Kodi's texture cache for smooth browsing."
+msgstr ""
+
+# PKC Settings - Artwork: help texts
+msgctxt "#39940"
+msgid "Download additional artwork (e.g. clearart and backgrounds) from FanartTV."
+msgstr ""
+
+# PKC Settings - Artwork: help texts
+msgctxt "#39941"
+msgid "Keep the artwork Kodi already has for movie collections instead of replacing it."
+msgstr ""
+
+# PKC Settings - Artwork: help texts
+msgctxt "#39942"
+msgid "Start a background search on FanartTV for missing artwork."
+msgstr ""
+
+# PKC Settings - Artwork: help texts
+msgctxt "#39943"
+msgid "Show Kodi notifications while artwork is being cached."
+msgstr ""
+
+# PKC Settings - Artwork: help texts
+msgctxt "#39944"
+msgid "Continue caching artwork while Kodi is playing video. Restart Kodi after changing."
+msgstr ""
+
+# PKC Settings - Artwork: help texts
+msgctxt "#39945"
+msgid "Start caching all artwork now. This runs in the background and can take a while."
+msgstr ""
+
+# PKC Settings - Artwork: help texts
+msgctxt "#39946"
+msgid "When the last FanartTV search completed."
+msgstr ""
+
+# PKC Settings - Artwork: help texts
+msgctxt "#39947"
+msgid "When the last full artwork caching completed."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39948"
+msgid "Add an 'Extras' entry to Kodi's context menu for movies and TV shows. Restart Kodi after changing."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39949"
+msgid "Delete media from the Plex server immediately, without asking for confirmation."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39950"
+msgid "Show how many versions of a movie you own instead of its user rating in Kodi."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39951"
+msgid "Maximum number of videos in Kodi widgets such as On Deck. Apply with the button below, then restart Kodi."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39952"
+msgid "Rebuild Kodi's video nodes and playlists to apply the widget and view settings above."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39953"
+msgid "Include the show title in episode entries of the On Deck view."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39954"
+msgid "Include season and episode numbers (SxxExx) in the On Deck view."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39955"
+msgid "Include episodes you have already watched in the Recently Added view."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39956"
+msgid "Include the show title in episode entries of the Recently Added view."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39957"
+msgid "Include season and episode numbers (SxxExx) in the Recently Added view."
+msgstr ""
+
+# PKC Settings - Kodi Interface: help texts
+msgctxt "#39958"
+msgid "Include movies you have already watched in the Recently Added view."
+msgstr ""
+
+# PKC Settings - Advanced: help texts
+msgctxt "#39959"
+msgid "Wait this many seconds before PKC starts after Kodi boots. Helps if the network needs time to come up."
+msgstr ""
+
+# PKC Settings - Advanced: help texts
+msgctxt "#39960"
+msgid "Compare every item against the Plex server and fix inconsistencies. Can take a long time."
+msgstr ""
+
+# PKC Settings - Advanced: help texts
+msgctxt "#39961"
+msgid "Generate a new random device ID. Useful when cloning this Kodi installation to another device."
+msgstr ""
+
+# PKC Settings - Advanced: help texts
+msgctxt "#39962"
+msgid "Delete the local Kodi database created by PKC and optionally reset all PKC settings. A full re-sync follows."
+msgstr ""
