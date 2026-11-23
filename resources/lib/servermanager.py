@@ -64,7 +64,8 @@ def _to_server(details):
 
 def _add_from_plex_tv():
     try:
-        discovered = PF.discover_pms(utils.settings('plexToken')) or []
+        discovered = PF.discover_pms(utils.settings('plexToken'),
+                            include_gdm=False) or []
     except Exception as error:
         LOG.error('Could not discover Plex servers: %s', error)
         utils.messageDialog(utils.lang(29999), utils.lang(33002))
@@ -146,6 +147,10 @@ def select_enabled_servers():
                                        selected=selected)
     if choice is None:
         return
+    if not choice:
+        utils.messageDialog(utils.lang(29999),
+                            'At least one Plex server must remain enabled')
+        return
     changed = False
     from .plex_db import PlexDB
     with PlexDB() as plexdb:
@@ -164,12 +169,12 @@ def select_enabled_servers():
 def manage():
     """Show the server manager until the user chooses Done."""
     actions = (ADD_DISCOVERED, ADD_MANUAL, REMOVE, PRIMARY, ENABLE, DONE)
-    labels = ('Add Plex server from plex.tv',
+    labels = ['Add Plex server from plex.tv',
               'Add Plex server manually',
               'Remove Plex server',
               'Set primary Plex server',
               'Enable Plex servers for sync',
-              'Done')
+              'Done']
     while True:
         choices = _server_labels() + labels
         index = selectdialog.select('Manage Plex servers', choices)

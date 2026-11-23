@@ -102,9 +102,8 @@ deduplicated Kodi library. Items that exist on more than one server are stored
 only once (matched by IMDb/TVDB/TMDB/AniDB id, falling back to the Plex guid);
 at play time PKC shows a dialog listing the servers that have the item.
 
-- Open **Settings → Plex Media Server → Manage Plex servers** to add, remove
-  or change the primary server. The "Choose Plex Server from a list" action
-  now adds a server instead of replacing the configured one.
+- Open **Settings → Plex Media Server → Plex servers** to add, remove,
+  enable/disable servers or change the primary server.
 - Servers are stored in `servers.json` in PKC's addon profile. The legacy
   settings continue to mirror the primary server.
 - Each Plex server is synced in turn. Kodi tags are shared by library name so

@@ -154,7 +154,11 @@ def check_connection(url, token=None, verifySSL=None):
     return answer
 
 
-def discover_pms(token=None):
+_DISCOVERY_CACHE = {}
+_DISCOVERY_CACHE_TTL = 300  # seconds
+
+
+def discover_pms(token=None, include_gdm=True, force=False):
     """
     Optional parameter:
         token       token for plex.tv - WARNING: for the main Plex user only!
@@ -184,9 +188,15 @@ def discover_pms(token=None):
         'baseURL':              [str] <scheme>://<ip>:<port> of the PMS
     }
     """
+    cached = _DISCOVERY_CACHE.get(token or '')
+    if not force and cached and time() - cached[0] < _DISCOVERY_CACHE_TTL:
+        LOG.info('Returning cached Plex server discovery')
+        return cached[1]
+
     LOG.info('Start discovery of Plex Media Servers')
-    # Look first for local PMS in the LAN
-    local_pms_list = _plex_gdm()
+    # GDM is only useful when we cannot ask plex.tv; the plex.tv resource list
+    # already contains local servers and GDM adds a 2 second delay.
+    local_pms_list = _plex_gdm() if include_gdm else []
     LOG.debug('PMS found in the local LAN using Plex GDM: %s', local_pms_list)
     # Get PMS from plex.tv
     if token:
@@ -212,6 +222,7 @@ def discover_pms(token=None):
                     continue
             plex_pms_list.append(pms)
     _log_pms(plex_pms_list)
+    _DISCOVERY_CACHE[token or ''] = (time(), plex_pms_list)
     return plex_pms_list
 
 
@@ -342,6 +353,11 @@ def _pms_list_from_plex_tv(token):
         if device.find('Connection') is None:
             # no valid connection - skip
             continue
+        if device.get('presence') == '0':
+            # Plex says the server is offline - do not waste time pinging its
+            # (often stale) addresses.
+            LOG.debug('Skipping offline PMS %s', device.get('name'))
+            continue
         # check MyPlex data age - skip if >2 days
         info_age = time() - int(device.get('lastSeenAt'))
         if info_age > max_age_in_seconds:
@@ -363,14 +379,24 @@ def _pms_list_from_plex_tv(token):
             'httpsRequired': device.get('httpsRequired') == '1',
             'connections': []
         }
-        # Try a local connection first, no matter what plex.tv tells us
-        for connection in device.findall('Connection'):
-            if connection.get('local') == '1':
+        # Try one local and one remote connection at most. Plex.tv often
+        # reports many stale relay/Docker addresses; probing each of them with
+        # a 3s timeout made discovery take half a minute.
+        seen_uris = set()
+        for wants_local in (True, False):
+            for connection in device.findall('Connection'):
+                is_local = connection.get('local') == '1'
+                if is_local != wants_local:
+                    continue
+                uri = connection.get('uri')
+                if not uri or uri in seen_uris:
+                    continue
+                seen_uris.add(uri)
                 pms['connections'].append(connection)
-        # Then try non-local
-        for connection in device.findall('Connection'):
-            if connection.get('local') != '1':
-                pms['connections'].append(connection)
+                if len(pms['connections']) >= 2:
+                    break
+            if len(pms['connections']) >= 2:
+                break
         # Spawn threads to ping each PMS simultaneously
         thread = Thread(target=_poke_pms, args=(pms, queue))
         thread_queue.append(thread)
@@ -408,52 +434,51 @@ def _pms_list_from_plex_tv(token):
 
 
 def _poke_pms(pms, queue):
-    data = pms['connections'][0].attrib
-    url = data['uri']
-    if data['local'] == '1' and utils.REGEX_PLEX_DIRECT.findall(url):
-        # In case DNS resolve of plex.direct does not work, append a new
-        # connection that will directly access the local IP (e.g. internet down)
-        conn = deepcopy(pms['connections'][0])
-        # Overwrite plex.direct
-        conn.attrib['uri'] = '%s://%s:%s' % (data['protocol'],
-                                             data['address'],
-                                             data['port'])
-        pms['connections'].insert(1, conn)
-    try:
-        protocol, address, port = url.split(':', 2)
-    except ValueError:
-        # e.g. .ork.plex.services uri, thanks Plex
-        protocol, address = url.split(':', 1)
-        port = data['port']
-        url = '%s:%s' % (url, port)
-    address = address.replace('/', '')
-    xml = DU().downloadUrl('%s/identity' % url,
-                           authenticate=False,
-                           headerOptions={'X-Plex-Token': pms['token']},
-                           verifySSL=True,
-                           timeout=(3.0, 5.0))
-    try:
-        xml.attrib['machineIdentifier']
-    except (AttributeError, KeyError):
-        # No connection, delete the one we just tested
-        del pms['connections'][0]
-        if pms['connections']:
-            # Still got connections left, try them
-            return _poke_pms(pms, queue)
-        return
-    else:
-        # Connection successful - correct pms?
-        if xml.get('machineIdentifier') == pms['machineIdentifier']:
-            # process later
+    """Try the (limited) list of connections until one answers correctly."""
+    seen = set()
+    while pms['connections']:
+        data = pms['connections'][0].attrib
+        url = data['uri']
+        if url in seen:
+            del pms['connections'][0]
+            continue
+        seen.add(url)
+        if data['local'] == '1' and utils.REGEX_PLEX_DIRECT.findall(url):
+            # If plex.direct DNS fails, also try the plain local address
+            conn = deepcopy(pms['connections'][0])
+            conn.attrib['uri'] = '%s://%s:%s' % (data['protocol'],
+                                                 data['address'],
+                                                 data['port'])
+            pms['connections'].insert(1, conn)
+        try:
+            protocol, address, port = url.split(':', 2)
+        except ValueError:
+            protocol, address = url.split(':', 1)
+            port = data['port']
+            url = '%s:%s' % (url, port)
+        address = address.replace('/', '')
+        xml = DU().downloadUrl('%s/identity' % url,
+                               authenticate=False,
+                               headerOptions={'X-Plex-Token': pms['token']},
+                               verifySSL=True,
+                               timeout=(1.5, 3.0))
+        try:
+            machine_identifier = xml.attrib['machineIdentifier']
+        except (AttributeError, KeyError):
+            machine_identifier = None
+        if machine_identifier == pms['machineIdentifier']:
             pms['baseURL'] = url
             pms['scheme'] = protocol
             pms['ip'] = address
             pms['port'] = port
             queue.put(pms)
             return
-    LOG.info('Found a pms at %s, but the expected machineIdentifier of '
-             '%s did not match the one we found: %s',
-             url, pms['uuid'], xml.get('machineIdentifier'))
+        if machine_identifier:
+            LOG.info('Found a pms at %s, but expected machineIdentifier %s '
+                     'and got %s', url, pms['machineIdentifier'],
+                     machine_identifier)
+        del pms['connections'][0]
+
 
 
 def GetPlexMetadata(key, reraise=False):

@@ -1,3 +1,13 @@
+version 3.14.1 (multi-server fork):
+- Consolidate the four similar server settings into a single "Plex servers"
+  action; remove the old Choose/Manually enter/Enable entries.
+- Fix "Manage Plex servers" crashing because a list was concatenated with a
+  tuple, so the dialog never opened.
+- Speed up Plex server discovery: skip GDM when a plex.tv token is available,
+  ignore offline servers, probe at most two connections per server with a
+  shorter timeout, and cache results.
+- Prevent disabling the last enabled Plex server.
+
 version 3.14.0 (multi-server fork):
 - Add "Enable Plex servers for sync" in the addon settings and server manager
 - Adding a Plex server now immediately requests a full library sync

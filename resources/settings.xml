@@ -65,41 +65,10 @@
                 </setting>
             </group>
             <group id="2">
-                <setting id="rvpegvatgxcrpgyrkomurhvxrtxjzghj" type="action" label="39050" help=""> <!-- Choose Plex Server from a list -->
-                    <level>0</level>
-                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect.ms?mode=chooseServer)</data>
-                    <constraints>
-                        <allowempty>true</allowempty>
-                    </constraints>
-                    <control type="button" format="action">
-                        <close>true</close>
-                    </control>
-                </setting>
-                <setting id="qbqqgiuygvtupktypjdymdqtmhyxvhud" type="action" label="39068" help=""> <!-- Manually enter Plex Media Server address -->
-                    <level>0</level>
-                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect.ms?mode=enterPMS)</data>
-                    <constraints>
-                        <allowempty>true</allowempty>
-                    </constraints>
-                    <control type="button" format="action">
-                        <close>true</close>
-                    </control>
-                </setting>
                 <setting id="mpskdxqzvjbhflcrtawygunieo" type="action" label="39450" help="">
-                    <!-- Manage Plex servers (multiple backends) -->
+                    <!-- Plex servers: add/remove/enable servers -->
                     <level>0</level>
                     <data>RunPlugin(plugin://plugin.video.plexkodiconnect.ms?mode=manageServers)</data>
-                    <constraints>
-                        <allowempty>true</allowempty>
-                    </constraints>
-                    <control type="button" format="action">
-                        <close>true</close>
-                    </control>
-                </setting>
-                <setting id="ykqvbmnxwrthsjdplgaucfeioz" type="action" label="39451" help="">
-                    <!-- Enable Plex servers for sync -->
-                    <level>0</level>
-                    <data>RunPlugin(plugin://plugin.video.plexkodiconnect.ms?mode=selectServers)</data>
                     <constraints>
                         <allowempty>true</allowempty>
                     </constraints>

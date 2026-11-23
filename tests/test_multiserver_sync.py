@@ -75,11 +75,14 @@ class TestMultiServerSync(unittest.TestCase):
         self.assertIn('content_key=content_key', source)
         self.assertIn('remove_source(server_id', source)
 
-    def test_settings_expose_server_enable_action(self):
+    def test_settings_expose_single_server_action(self):
         path = os.path.join(ROOT, 'resources', 'settings.xml')
         with open(path, encoding='utf-8') as handle:
             source = handle.read()
-        self.assertIn('mode=selectServers', source)
+        self.assertIn('mode=manageServers', source)
+        self.assertNotIn('mode=chooseServer', source)
+        self.assertNotIn('mode=enterPMS', source)
+        self.assertNotIn('mode=selectServers', source)
 
     def test_servermanager_has_enable_action(self):
         path = os.path.join(ROOT, 'resources', 'lib', 'servermanager.py')

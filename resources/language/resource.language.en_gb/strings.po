@@ -1184,11 +1184,7 @@ msgstr ""
 
 # PKC Settings - Connection (multi-server)
 msgctxt "#39450"
-msgid "Manage Plex servers"
-msgstr ""
-
-msgctxt "#39451"
-msgid "Enable Plex servers for sync"
+msgid "Plex servers"
 msgstr ""
 
 # PKC Settings - Sync

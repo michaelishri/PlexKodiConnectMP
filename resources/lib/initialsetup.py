@@ -331,7 +331,8 @@ class InitialSetup(object):
         try:
             while True:
                 if https_updated is False:
-                    serverlist = PF.discover_pms(self.plex_token)
+                    serverlist = PF.discover_pms(self.plex_token,
+                                            include_gdm=not bool(self.plex_token))
                     for item in serverlist:
                         if item.get('machineIdentifier') == app.CONN.machine_identifier:
                             server = item
@@ -378,7 +379,8 @@ class InitialSetup(object):
                      time=60000)
         while True:
             if https_updated is False:
-                serverlist = PF.discover_pms(self.plex_token)
+                serverlist = PF.discover_pms(self.plex_token,
+                                            include_gdm=not bool(self.plex_token))
                 # Exit if no servers found
                 if not serverlist:
                     LOG.warn('No plex media servers found!')
