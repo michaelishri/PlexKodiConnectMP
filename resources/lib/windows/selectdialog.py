@@ -38,6 +38,14 @@ class SelectDialog(kodigui.BaseDialog):
         self.list = None
         self.items = []
 
+    def doModal(self):
+        """
+        Use Kodi's real modal loop. The generic kodigui.Modal helper only
+        shows the window and waits in Python, which leaves the underlying
+        add-on settings window active and swallows navigation/select actions.
+        """
+        xbmcgui.WindowXMLDialog.doModal(self)
+
     def onFirstInit(self):
         self.setProperty('header', self.heading)
         self.list = kodigui.ManagedControlList(self, self.LIST_ID,

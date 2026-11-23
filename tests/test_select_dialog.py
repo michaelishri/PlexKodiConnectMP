@@ -85,6 +85,14 @@ class TestSelectDialogSkin(unittest.TestCase):
         self.assertNotIn('self.choose_plex_libraries', source)
         self.assertIn('sections.pick_libraries_all(self, force=True)', source)
 
+    def test_dialog_uses_kodi_modal_loop(self):
+        # Without this, key presses go to the window behind our dialog.
+        path = os.path.join(ROOT, 'resources', 'lib', 'windows',
+                            'selectdialog.py')
+        with open(path, encoding='utf-8') as handle:
+            source = handle.read()
+        self.assertIn('xbmcgui.WindowXMLDialog.doModal(self)', source)
+
     def test_no_native_select_dialogs_remain(self):
         pattern = re.compile(r'(Dialog\(\)\.select|multiselect\(|'
                              r"utils\.dialog\(['\"]select['\"])")

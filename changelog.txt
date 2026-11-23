@@ -1,3 +1,7 @@
+version 3.14.2 (multi-server fork):
+- Fix selection dialogs so keyboard/remote input is received by the dialog
+  instead of the add-on settings window behind it (use Kodi's real modal loop)
+
 version 3.14.1 (multi-server fork):
 - Consolidate the four similar server settings into a single "Plex servers"
   action; remove the old Choose/Manually enter/Enable entries.
