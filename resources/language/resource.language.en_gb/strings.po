@@ -2915,3 +2915,43 @@ msgstr ""
 msgctxt "#39962"
 msgid "Delete the local Kodi database created by PKC and optionally reset all PKC settings. A full re-sync follows."
 msgstr ""
+
+# PKC Settings - Server manager: footer buttons
+msgctxt "#39963"
+msgid "Set primary"
+msgstr ""
+
+# PKC Settings - Server manager: footer buttons
+msgctxt "#39964"
+msgid "Remove server"
+msgstr ""
+
+# PKC Settings - Server manager: footer buttons
+msgctxt "#39965"
+msgid "Add manually"
+msgstr ""
+
+# PKC Settings - Server manager: discovery status
+msgctxt "#39966"
+msgid "Could not check plex.tv for more servers. Only configured servers are shown."
+msgstr ""
+
+# PKC Settings - Server manager: notifications
+msgctxt "#39967"
+msgid "At least one Plex server must stay enabled."
+msgstr ""
+
+# PKC Settings - Server manager: appended to the address of unreachable servers
+msgctxt "#39968"
+msgid "offline"
+msgstr ""
+
+# PKC Settings - Server manager: discovery status
+msgctxt "#39969"
+msgid "No additional Plex servers were found on plex.tv."
+msgstr ""
+
+# PKC Settings - Server manager: notifications
+msgctxt "#39970"
+msgid "At least one Plex server must remain configured."
+msgstr ""

@@ -593,6 +593,8 @@ def pick_libraries_all(parent_self, force=False):
 
     Labels include the server name, e.g. "TV Shows (Jason's Plex Server)", so
     overlapping library names from different servers remain distinguishable.
+    parent_self only supplies should_cancel() and may be None when called
+    from a context without a running sync.
     """
     global SHOULD_CANCEL
     servers = app.CONN.enabled_servers()
@@ -604,7 +606,8 @@ def pick_libraries_all(parent_self, force=False):
                          for server in servers):
         return True
 
-    SHOULD_CANCEL = parent_self.should_cancel
+    SHOULD_CANCEL = (parent_self.should_cancel if parent_self
+                     else (lambda: False))
     try:
         collected = {}
         for server in servers:

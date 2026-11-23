@@ -121,6 +121,31 @@ class FakeListItem(object):
         self.setProperty(key, '1' if value else '')
 
 
+class FakeDialog(object):
+    """Inert xbmcgui.Dialog stand-in: no UI, safe defaults."""
+
+    def notification(self, *args, **kwargs):
+        return None
+
+    def yesno(self, *args, **kwargs):
+        return False
+
+    def ok(self, *args, **kwargs):
+        return False
+
+    def input(self, *args, **kwargs):
+        return ''
+
+    def select(self, *args, **kwargs):
+        return -1
+
+    def numeric(self, *args, **kwargs):
+        return ''
+
+    def contextmenu(self, *args, **kwargs):
+        return -1
+
+
 class FakeWindowXML(object):
     def __init__(self, *args, **kwargs):
         pass
@@ -217,7 +242,7 @@ def install():
     xbmcgui.Window = FakeWindow
     xbmcgui.WindowXML = FakeWindowXML
     xbmcgui.WindowXMLDialog = FakeWindowXML
-    xbmcgui.Dialog = object
+    xbmcgui.Dialog = FakeDialog
     xbmcgui.ListItem = FakeListItem
     xbmcgui.ACTION_PREVIOUS_MENU = 10
     xbmcgui.ACTION_NAV_BACK = 92

@@ -45,7 +45,7 @@ def is_valid_hostname(hostname):
     if hostname[-1] == ".":
         # strip exactly one dot from the right, if present
         hostname = hostname[:-1]
-    allowed = re.compile("(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
+    allowed = re.compile(r"(?!-)[A-Z\d-]{1,63}(?<!-)$", re.IGNORECASE)
     return all(allowed.match(x) for x in hostname.split("."))
 
 
@@ -68,33 +68,33 @@ def start():
     #   INFO: Activate of window '13000' refused because there are active modal dialogs
     #   DEBUG: Activating window ID: 13000
     xbmc.executebuiltin("Dialog.Close(all, true)")
-    # "In the following window, enter the server's hostname (or IP) where your
-    # Plex media resides. Mind the case!"
-    utils.messageDialog(utils.lang(29999), utils.lang(30200))
     # "Enter server hostname (or IP)"
-    hostname = utils.dialog('input', utils.lang(30201))
-    if not hostname:
-        return
-    hostname = hostname.strip()
-    if not is_valid_hostname(hostname) and not is_valid_ip(hostname):
+    for _attempt in range(3):
+        hostname = utils.dialog('input', utils.lang(30201))
+        if not hostname:
+            return
+        hostname = hostname.strip()
+        if is_valid_hostname(hostname) or is_valid_ip(hostname):
+            break
         LOG.error('Entered invalid hostname or IP: %s', hostname)
         # "The hostname or IP '{0}' that you entered is not valid"
         utils.messageDialog(utils.lang(29999),
                             utils.lang(30204).format(hostname))
+    else:
         return
-    # "In the following window, enter the network protocol you would like to
-    # use. This is likely 'smb'."
-    utils.messageDialog(utils.lang(29999), utils.lang(30202))
     # "Enter network protocol"
-    protocol = utils.dialog('input', utils.lang(30203))
-    if not protocol:
-        return
-    protocol = protocol.lower().strip()
-    if protocol not in SUPPORTED_PROTOCOLS:
+    for _attempt in range(3):
+        protocol = utils.dialog('input', utils.lang(30203))
+        if not protocol:
+            return
+        protocol = protocol.lower().strip()
+        if protocol in SUPPORTED_PROTOCOLS:
+            break
         LOG.error('Entered invalid protocol %s', protocol)
         # "The protocol '{0}' that you entered is not supported."
         utils.messageDialog(utils.lang(29999),
                             utils.lang(30205).format(protocol))
+    else:
         return
     path = '%s://%s' % (protocol, hostname)
     # Trailing slash at the end

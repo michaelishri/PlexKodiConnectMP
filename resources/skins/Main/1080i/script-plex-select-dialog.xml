@@ -87,6 +87,31 @@
                         <aligny>center</aligny>
                         <textcolor>FFFFFFFF</textcolor>
                         <label>$INFO[ListItem.Label]</label>
+                        <visible>String.IsEmpty(ListItem.Label2)</visible>
+                    </control>
+                    <control type="label">
+                        <posx>24</posx>
+                        <posy>3</posy>
+                        <width>820</width>
+                        <height>32</height>
+                        <font>font14</font>
+                        <align>left</align>
+                        <aligny>center</aligny>
+                        <textcolor>FFFFFFFF</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                        <visible>!String.IsEmpty(ListItem.Label2)</visible>
+                    </control>
+                    <control type="label">
+                        <posx>24</posx>
+                        <posy>34</posy>
+                        <width>820</width>
+                        <height>24</height>
+                        <font>font12</font>
+                        <align>left</align>
+                        <aligny>center</aligny>
+                        <textcolor>A0B0B0B0</textcolor>
+                        <label>$INFO[ListItem.Label2]</label>
+                        <visible>!String.IsEmpty(ListItem.Label2)</visible>
                     </control>
                     <control type="image">
                         <posx>860</posx>
@@ -123,6 +148,31 @@
                         <aligny>center</aligny>
                         <textcolor>FF000000</textcolor>
                         <label>$INFO[ListItem.Label]</label>
+                        <visible>String.IsEmpty(ListItem.Label2)</visible>
+                    </control>
+                    <control type="label">
+                        <posx>24</posx>
+                        <posy>3</posy>
+                        <width>820</width>
+                        <height>32</height>
+                        <font>font14</font>
+                        <align>left</align>
+                        <aligny>center</aligny>
+                        <textcolor>FF000000</textcolor>
+                        <label>$INFO[ListItem.Label]</label>
+                        <visible>!String.IsEmpty(ListItem.Label2)</visible>
+                    </control>
+                    <control type="label">
+                        <posx>24</posx>
+                        <posy>34</posy>
+                        <width>820</width>
+                        <height>24</height>
+                        <font>font12</font>
+                        <align>left</align>
+                        <aligny>center</aligny>
+                        <textcolor>FF303030</textcolor>
+                        <label>$INFO[ListItem.Label2]</label>
+                        <visible>!String.IsEmpty(ListItem.Label2)</visible>
                     </control>
                     <control type="image">
                         <posx>860</posx>
@@ -143,26 +193,72 @@
                 </focusedlayout>
             </control>
 
-            <control type="button" id="1001">
-                <posx>590</posx>
+            <control type="button" id="1003">
+                <posx>48</posx>
                 <posy>648</posy>
-                <width>180</width>
+                <width>170</width>
                 <height>50</height>
-                <font>font14</font>
+                <font>font13</font>
                 <align>center</align>
                 <aligny>center</aligny>
-                <label>186</label>
+                <label>$INFO[Window.Property(button1label)]</label>
+                <visible>!String.IsEmpty(Window.Property(button1label))</visible>
+                <texturefocus colordiffuse="FFE5A00D" border="10">plugin.video.plexkodiconnect/white-square-rounded.png</texturefocus>
+                <texturenofocus colordiffuse="FF606060" border="10">plugin.video.plexkodiconnect/white-square-rounded.png</texturenofocus>
+                <textcolor>FF000000</textcolor>
+                <textcolordisabled>FF808080</textcolordisabled>
+            </control>
+            <control type="button" id="1004">
+                <posx>234</posx>
+                <posy>648</posy>
+                <width>170</width>
+                <height>50</height>
+                <font>font13</font>
+                <align>center</align>
+                <aligny>center</aligny>
+                <label>$INFO[Window.Property(button2label)]</label>
+                <visible>!String.IsEmpty(Window.Property(button2label))</visible>
+                <texturefocus colordiffuse="FFE5A00D" border="10">plugin.video.plexkodiconnect/white-square-rounded.png</texturefocus>
+                <texturenofocus colordiffuse="FF606060" border="10">plugin.video.plexkodiconnect/white-square-rounded.png</texturenofocus>
+                <textcolor>FF000000</textcolor>
+                <textcolordisabled>FF808080</textcolordisabled>
+            </control>
+            <control type="button" id="1005">
+                <posx>420</posx>
+                <posy>648</posy>
+                <width>170</width>
+                <height>50</height>
+                <font>font13</font>
+                <align>center</align>
+                <aligny>center</aligny>
+                <label>$INFO[Window.Property(button3label)]</label>
+                <visible>!String.IsEmpty(Window.Property(button3label))</visible>
+                <texturefocus colordiffuse="FFE5A00D" border="10">plugin.video.plexkodiconnect/white-square-rounded.png</texturefocus>
+                <texturenofocus colordiffuse="FF606060" border="10">plugin.video.plexkodiconnect/white-square-rounded.png</texturenofocus>
+                <textcolor>FF000000</textcolor>
+                <textcolordisabled>FF808080</textcolordisabled>
+            </control>
+            <control type="button" id="1001">
+                <posx>606</posx>
+                <posy>648</posy>
+                <width>170</width>
+                <height>50</height>
+                <font>font13</font>
+                <align>center</align>
+                <aligny>center</aligny>
+                <label>$INFO[Window.Property(oklabel)]</label>
+                <visible>!String.IsEmpty(Window.Property(multi))</visible>
                 <texturefocus colordiffuse="FFE5A00D" border="10">plugin.video.plexkodiconnect/white-square-rounded.png</texturefocus>
                 <texturenofocus colordiffuse="FF606060" border="10">plugin.video.plexkodiconnect/white-square-rounded.png</texturenofocus>
                 <textcolor>FF000000</textcolor>
                 <textcolordisabled>FF808080</textcolordisabled>
             </control>
             <control type="button" id="1002">
-                <posx>790</posx>
+                <posx>792</posx>
                 <posy>648</posy>
-                <width>170</width>
+                <width>160</width>
                 <height>50</height>
-                <font>font14</font>
+                <font>font13</font>
                 <align>center</align>
                 <aligny>center</aligny>
                 <label>222</label>

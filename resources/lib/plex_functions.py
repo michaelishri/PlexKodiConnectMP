@@ -158,10 +158,17 @@ _DISCOVERY_CACHE = {}
 _DISCOVERY_CACHE_TTL = 300  # seconds
 
 
-def discover_pms(token=None, include_gdm=True, force=False):
+def discover_pms(token=None, include_gdm=True, force=False,
+                include_offline=False):
     """
     Optional parameter:
         token       token for plex.tv - WARNING: for the main Plex user only!
+        include_offline
+                    Also return servers that plex.tv currently reports as
+                    offline. They carry presence=False and their address is
+                    taken from plex.tv without probing. Useful when offering
+                    servers to add; the default of False preserves the old
+                    behaviour of only returning reachable servers.
 
     Returns a list of available PMS to connect to, one entry is the dict:
     {
@@ -188,7 +195,8 @@ def discover_pms(token=None, include_gdm=True, force=False):
         'baseURL':              [str] <scheme>://<ip>:<port> of the PMS
     }
     """
-    cached = _DISCOVERY_CACHE.get(token or '')
+    cache_key = (token or '', bool(include_offline))
+    cached = _DISCOVERY_CACHE.get(cache_key)
     if not force and cached and time() - cached[0] < _DISCOVERY_CACHE_TTL:
         LOG.info('Returning cached Plex server discovery')
         return cached[1]
@@ -201,7 +209,8 @@ def discover_pms(token=None, include_gdm=True, force=False):
     # Get PMS from plex.tv
     if token:
         LOG.info('Checking with plex.tv for more PMS to connect to')
-        plex_pms_list = _pms_list_from_plex_tv(token)
+        plex_pms_list = _pms_list_from_plex_tv(token,
+                                               include_offline=include_offline)
         _log_pms(plex_pms_list)
     else:
         LOG.info('No plex token supplied, only checked LAN for available PMS')
@@ -222,7 +231,7 @@ def discover_pms(token=None, include_gdm=True, force=False):
                     continue
             plex_pms_list.append(pms)
     _log_pms(plex_pms_list)
-    _DISCOVERY_CACHE[token or ''] = (time(), plex_pms_list)
+    _DISCOVERY_CACHE[cache_key] = (time(), plex_pms_list)
     return plex_pms_list
 
 
@@ -327,9 +336,13 @@ def _plex_gdm():
     return pms_list
 
 
-def _pms_list_from_plex_tv(token):
+def _pms_list_from_plex_tv(token, include_offline=False):
     """
     get Plex media Server List from plex.tv/pms/resources
+
+    Offline servers are dropped unless include_offline is True. In that case
+    they are returned with presence=False and their address taken from the
+    first plex.tv connection, without spending time probing them.
     """
     xml = DU().downloadUrl('https://plex.tv/api/resources',
                            authenticate=False,
@@ -344,6 +357,7 @@ def _pms_list_from_plex_tv(token):
     from queue import Queue
     queue = Queue()
     thread_queue = []
+    unprobed = []
 
     max_age_in_seconds = 2 * 60 * 60 * 24
     for device in xml.findall('Device'):
@@ -353,16 +367,19 @@ def _pms_list_from_plex_tv(token):
         if device.find('Connection') is None:
             # no valid connection - skip
             continue
-        if device.get('presence') == '0':
+        offline = device.get('presence') == '0'
+        if offline and not include_offline:
             # Plex says the server is offline - do not waste time pinging its
             # (often stale) addresses.
             LOG.debug('Skipping offline PMS %s', device.get('name'))
             continue
-        # check MyPlex data age - skip if >2 days
-        info_age = time() - int(device.get('lastSeenAt'))
-        if info_age > max_age_in_seconds:
-            LOG.debug("Skip server %s not seen for 2 days", device.get('name'))
-            continue
+        if not offline:
+            # check MyPlex data age - skip if >2 days
+            info_age = time() - int(device.get('lastSeenAt') or 0)
+            if info_age > max_age_in_seconds:
+                LOG.debug("Skip server %s not seen for 2 days",
+                          device.get('name'))
+                continue
         pms = {
             'machineIdentifier': device.get('clientIdentifier'),
             'name': device.get('name'),
@@ -379,6 +396,22 @@ def _pms_list_from_plex_tv(token):
             'httpsRequired': device.get('httpsRequired') == '1',
             'connections': []
         }
+        if offline:
+            # Do not probe offline servers; trust plex.tv's connection data so
+            # they can still be offered (and added) while unreachable
+            connection = device.find('Connection')
+            uri = (connection.get('uri') or '').strip()
+            scheme, _, hostport = uri.partition('://')
+            host, _, port = hostport.rpartition(':')
+            if not host:
+                host = hostport
+            pms['scheme'] = scheme or 'https'
+            pms['ip'] = host
+            pms['port'] = port or '32400'
+            pms['baseURL'] = uri or None
+            del pms['connections']
+            unprobed.append(pms)
+            continue
         # Try one local and one remote connection at most. Plex.tv often
         # reports many stale relay/Docker addresses; probing each of them with
         # a 3s timeout made discovery take half a minute.
@@ -424,7 +457,7 @@ def _pms_list_from_plex_tv(token):
     for thread in threads:
         thread.join()
     # declare new PMSs
-    pms_list = []
+    pms_list = unprobed
     while not queue.empty():
         pms = queue.get()
         del pms['connections']

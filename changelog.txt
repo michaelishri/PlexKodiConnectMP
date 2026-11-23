@@ -1,3 +1,26 @@
+version 3.16.0 (multi-server fork):
+- Redesign "Add, remove or enable Plex servers" into one coherent dialog:
+  every server the Plex account can access is listed, checkboxes toggle
+  sync on/off (including a live guard so the last enabled server cannot
+  be switched off), and previously invisible plex.tv servers can be added
+  by checking them - offline ones are shown tagged "(offline)" instead of
+  being silently dropped
+- Fix the selection dialog masquerading as a checklist: checkboxes are now
+  only drawn in multi-choice mode; single-choice dialogs (server choosers,
+  playback stream pickers) show plain rows and a single Cancel button,
+  "Done" became a footer button instead of a list item, and the OK button
+  no longer silently means "cancel" in single-choice mode
+- Server rows in the manager show their address on a second line, so the
+  old "click a server to see its URL" modal is gone
+- New footer buttons in the server manager: Set primary and Remove act on
+  the focused row, Add manually opens the manual address entry; removing
+  the last configured server is refused
+- After adding or newly enabling a server, the library picker opens
+  right away so the flow completes in one go
+- Condense the "Network credentials for direct paths" dialog chain: drop
+  the two instructional popups and re-ask on invalid input instead of
+  aborting
+
 version 3.15.0 (multi-server fork):
 - Overhaul the addon settings for clarity: regroup everything into a logical
   user flow (Connection, Plex Account, Library Sync, Playback, File Paths,

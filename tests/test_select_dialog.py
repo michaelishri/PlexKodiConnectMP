@@ -21,8 +21,9 @@ SKIN = os.path.join(ROOT, 'resources', 'skins', 'Main', '1080i',
 
 
 class FakeWindow(object):
-    def __init__(self, result):
+    def __init__(self, result, button_result=None):
         self.result = result
+        self.button_result = button_result
 
 
 class TestSelectDialogHelpers(unittest.TestCase):
@@ -63,6 +64,53 @@ class TestSelectDialogHelpers(unittest.TestCase):
         self.assertEqual(captured['selected'], [1])
         self.assertFalse(captured['multi'])
 
+    def test_select_ex_returns_button_action(self):
+        selectdialog.SelectDialog.open = \
+            lambda **kwargs: FakeWindow(None,
+                                        button_result=('remove', 1))
+        result, action = selectdialog.select_ex('H', ['a', 'b'])
+        self.assertIsNone(result)
+        self.assertEqual(action, ('remove', 1))
+
+    def test_select_ex_without_buttons(self):
+        selectdialog.SelectDialog.open = lambda **kwargs: FakeWindow([1])
+        result, action = selectdialog.select_ex('H', ['a', 'b'])
+        self.assertEqual(result, [1])
+        self.assertIsNone(action)
+
+    def test_single_mode_has_no_checkboxes(self):
+        items = selectdialog._build_items(['a', 'b'], multi=False,
+                                           selected=set([0]))
+        for item in items:
+            self.assertNotIn('checkbox', item.properties)
+            self.assertNotIn('checked', item.properties)
+
+    def test_multi_mode_has_checkboxes(self):
+        items = selectdialog._build_items(['a', 'b'], multi=True,
+                                          selected=set([0]))
+        self.assertEqual(items[0].properties['checkbox'], '1')
+        self.assertEqual(items[0].properties['checked'], '1')
+        self.assertEqual(items[1].properties['checkbox'], '1')
+        # Unchecked rows carry an empty (invisible) marker
+        self.assertEqual(items[1].properties['checked'], '')
+
+    def test_dict_options_carry_second_line(self):
+        options = [{'label': 'WHARE',
+                    'label2': 'https://192.168.1.198:32400'},
+                   'Just a plain option']
+        items = selectdialog._build_items(options, multi=True,
+                                          selected=set())
+        self.assertEqual(items[0].label, 'WHARE')
+        self.assertEqual(items[0].label2, 'https://192.168.1.198:32400')
+        self.assertEqual(items[1].label, 'Just a plain option')
+        self.assertEqual(items[1].label2, '')
+
+    def test_checkbox_can_be_suppressed_per_row(self):
+        options = [{'label': 'info', 'checkbox': False}, 'normal']
+        items = selectdialog._build_items(options, multi=True, selected=set())
+        self.assertNotIn('checkbox', items[0].properties)
+        self.assertEqual(items[1].properties['checkbox'], '1')
+
 
 class TestSelectDialogSkin(unittest.TestCase):
 
@@ -75,8 +123,20 @@ class TestSelectDialogSkin(unittest.TestCase):
         self.assertIn('ListItem.Property(checked)', xml)
         self.assertIn('settings/checkbox.png', xml)
         self.assertIn('settings/checkmark.png', xml)
-        self.assertIn('type="button" id="1001"', xml)  # OK
+        self.assertIn('type="button" id="1001"', xml)  # Done (multi only)
         self.assertIn('type="button" id="1002"', xml)  # Cancel
+
+    def test_skin_modes_and_extra_buttons(self):
+        with open(SKIN, encoding='utf-8') as handle:
+            xml = handle.read()
+        # The OK button is only shown in multi mode, with a caller label
+        self.assertIn('Window.Property(oklabel)', xml)
+        self.assertIn('!String.IsEmpty(Window.Property(multi))', xml)
+        # Extra footer buttons are property driven
+        for number in ('button1label', 'button2label', 'button3label'):
+            self.assertIn('Window.Property(%s)' % number, xml)
+        # Second line per row
+        self.assertIn('ListItem.Label2', xml)
 
     def test_select_libraries_command_calls_a_real_method(self):
         path = os.path.join(ROOT, 'resources', 'lib', 'service_entry.py')
@@ -92,6 +152,15 @@ class TestSelectDialogSkin(unittest.TestCase):
         with open(path, encoding='utf-8') as handle:
             source = handle.read()
         self.assertIn('xbmcgui.WindowXMLDialog.doModal(self)', source)
+
+    def test_single_choice_dialogs_never_draw_checkboxes(self):
+        # Regression: single-select dialogs used to render one unchecked
+        # checkbox per row, masquerading as a checklist
+        path = os.path.join(ROOT, 'resources', 'lib', 'windows',
+                            'selectdialog.py')
+        with open(path, encoding='utf-8') as handle:
+            source = handle.read()
+        self.assertIn('if multi and checkbox:', source)
 
     def test_no_native_select_dialogs_remain(self):
         pattern = re.compile(r'(Dialog\(\)\.select|multiselect\(|'
