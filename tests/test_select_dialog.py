@@ -112,67 +112,6 @@ class TestSelectDialogHelpers(unittest.TestCase):
         self.assertEqual(items[1].properties['checkbox'], '1')
 
 
-class TestRailNavigation(unittest.TestCase):
-    """Keyboard/remote navigation fallback for the button rail."""
-
-    MANAGE = [1003, 1004, 1005, 1002, 1001]
-    MULTI_ONLY = [1002, 1001]
-    SINGLE_ONLY = [1002]
-
-    def test_right_from_list_enters_rail_at_the_top(self):
-        for rail in (self.MANAGE, self.MULTI_ONLY, self.SINGLE_ONLY):
-            self.assertEqual(
-                selectdialog._rail_focus_target(
-                    rail, 100, selectdialog.xbmcgui.ACTION_MOVE_RIGHT),
-                rail[0])
-
-    def test_down_walks_the_rail(self):
-        self.assertEqual(
-            selectdialog._rail_focus_target(
-                self.MANAGE, 1003, selectdialog.xbmcgui.ACTION_MOVE_DOWN),
-            1004)
-        self.assertEqual(
-            selectdialog._rail_focus_target(
-                self.MANAGE, 1005, selectdialog.xbmcgui.ACTION_MOVE_DOWN),
-            1002)
-        self.assertEqual(
-            selectdialog._rail_focus_target(
-                self.MULTI_ONLY, 1002, selectdialog.xbmcgui.ACTION_MOVE_DOWN),
-            1001)
-
-    def test_down_at_the_bottom_stays(self):
-        self.assertIsNone(selectdialog._rail_focus_target(
-            self.MANAGE, 1001, selectdialog.xbmcgui.ACTION_MOVE_DOWN))
-        self.assertIsNone(selectdialog._rail_focus_target(
-            self.SINGLE_ONLY, 1002, selectdialog.xbmcgui.ACTION_MOVE_DOWN))
-
-    def test_up_walks_the_rail_and_hands_back_to_the_list(self):
-        self.assertEqual(
-            selectdialog._rail_focus_target(
-                self.MANAGE, 1005, selectdialog.xbmcgui.ACTION_MOVE_UP),
-            1004)
-        self.assertEqual(
-            selectdialog._rail_focus_target(
-                self.MANAGE, 1002, selectdialog.xbmcgui.ACTION_MOVE_UP),
-            1005)
-        # Top of the rail goes back to the list, in every mode
-        for rail in (self.MANAGE, self.MULTI_ONLY, self.SINGLE_ONLY):
-            self.assertEqual(
-                selectdialog._rail_focus_target(
-                    rail, rail[0], selectdialog.xbmcgui.ACTION_MOVE_UP),
-                100)
-
-    def test_unrelated_focus_and_actions_are_ignored(self):
-        self.assertIsNone(selectdialog._rail_focus_target(
-            self.MANAGE, 100, selectdialog.xbmcgui.ACTION_MOVE_UP))
-        self.assertIsNone(selectdialog._rail_focus_target(
-            self.MANAGE, 999, selectdialog.xbmcgui.ACTION_MOVE_DOWN))
-        self.assertIsNone(selectdialog._rail_focus_target(
-            self.MANAGE, 1002, selectdialog.xbmcgui.ACTION_MOVE_LEFT))
-        self.assertIsNone(selectdialog._rail_focus_target(
-            [], 100, selectdialog.xbmcgui.ACTION_MOVE_RIGHT))
-
-
 class TestSelectDialogSkin(unittest.TestCase):
 
     def test_skin_has_visible_checkbox_per_row(self):
@@ -215,18 +154,34 @@ class TestSelectDialogSkin(unittest.TestCase):
             xml = handle.read()
         # Every button hands focus back to the list on Left
         self.assertEqual(xml.count('<onleft>100</onleft>'), 5)
-        # Static hops inside the rail where both ends are always
-        # visible together; the dynamic hops fall back to python
-        self.assertIn('<ondown>1004</ondown>', xml)
-        self.assertIn('<onup>1003</onup>', xml)
-        self.assertIn('<ondown>1005</ondown>', xml)
-        self.assertIn('<onup>1004</onup>', xml)
-        self.assertIn('<ondown>1002</ondown>', xml)
-        done_block = xml[xml.index('type="button" id="1001"'):]
-        self.assertIn('<onup>1002</onup>',
-                      done_block[:done_block.index('</control>')])
-        self.assertIn('<ondown>1002</ondown>',
-                      done_block[:done_block.index('</control>')])
+        # The full rail chain, wrapped at both ends. Targets hidden in the
+        # current dialog mode are simply not focused by Kodi, which is what
+        # makes the same matrix work for every mode.
+        for source, direction, target in (
+                (1003, 'onup', 1001), (1003, 'ondown', 1004),
+                (1004, 'onup', 1003), (1004, 'ondown', 1005),
+                (1005, 'onup', 1004), (1005, 'ondown', 1002),
+                (1002, 'onup', 1005), (1002, 'ondown', 1001),
+                (1001, 'onup', 1002), (1001, 'ondown', 1003)):
+            block = xml[xml.index('type="button" id="%d"' % source):]
+            block = block[:block.index('</control>')]
+            self.assertIn('<%s>%d</%s>' % (direction, target, direction),
+                          block, 'id %d' % source)
+        # The list enters the rail at the always-visible Cancel button
+        self.assertIn('<onright>1002</onright>', xml)
+
+    def test_onAction_never_moves_focus(self):
+        # Regression: onAction runs BEFORE Kodi's built-in navigation, so a
+        # setFocusId() there made one key press jump two buttons
+        path = os.path.join(ROOT, 'resources', 'lib', 'windows',
+                            'selectdialog.py')
+        with open(path, encoding='utf-8') as handle:
+            source = handle.read()
+        start = source.index('def onAction')
+        end = source.index('\ndef ', start)
+        body = source[start:end]
+        self.assertNotIn('self.setFocusId', body)
+        self.assertIn('All rail navigation lives in', source)
 
     def test_select_libraries_command_calls_a_real_method(self):
         path = os.path.join(ROOT, 'resources', 'lib', 'service_entry.py')

@@ -54,31 +54,6 @@ def _build_items(options, multi, selected):
     return items
 
 
-def _rail_focus_target(rail, focus, action_id):
-    """
-    Resolve a directional move for keyboard/remote navigation.
-
-    rail is the list of VISIBLE rail button ids, top to bottom. focus is the
-    currently focused control id. Returns the control id to focus, or None
-    when the built-in navigation should apply or focus should stay put.
-    Used as the fallback for moves the skin's static navigation cannot
-    express, because button visibility differs between dialog modes.
-    """
-    if focus == SelectDialog.LIST_ID:
-        if action_id == xbmcgui.ACTION_MOVE_RIGHT:
-            return rail[0] if rail else None
-        return None
-    if focus not in rail:
-        return None
-    index = rail.index(focus)
-    if action_id == xbmcgui.ACTION_MOVE_UP:
-        # Top of the rail: hand focus back to the list
-        return rail[index - 1] if index > 0 else SelectDialog.LIST_ID
-    if action_id == xbmcgui.ACTION_MOVE_DOWN:
-        return rail[index + 1] if index + 1 < len(rail) else None
-    return None
-
-
 class SelectDialog(kodigui.BaseDialog):
     xmlFile = 'script-plex-select-dialog.xml'
     path = v.ADDON_PATH
@@ -144,14 +119,6 @@ class SelectDialog(kodigui.BaseDialog):
         item = self.list.getSelectedItem() if self.list else None
         return item.dataSource if item else None
 
-    def _visible_rail_ids(self):
-        """The rail button ids that are currently visible, top to bottom."""
-        ids = list(self.EXTRA_BUTTON_IDS[:len(self.extra_buttons)])
-        ids.append(self.CANCEL_BUTTON_ID)
-        if self.multi:
-            ids.append(self.OK_BUTTON_ID)
-        return ids
-
     def _toggle(self):
         item = self.list.getSelectedItem()
         if not item:
@@ -196,21 +163,17 @@ class SelectDialog(kodigui.BaseDialog):
 
 
     def onAction(self, action):
-        action_id = action.getId()
-        if action_id in (xbmcgui.ACTION_PREVIOUS_MENU,
-                         xbmcgui.ACTION_NAV_BACK):
+        # NOTE: Do NOT move focus from here for directional actions. onAction
+        # runs BEFORE Kodi's built-in navigation, so a setFocusId() here is
+        # followed by the built-in navigation moving focus again - one key
+        # press then jumps two buttons. All rail navigation lives in the
+        # skin's <onup>/<ondown>/<onleft>/<onright> tags; targets that are
+        # hidden in the current mode are simply not focused.
+        if action.getId() in (xbmcgui.ACTION_PREVIOUS_MENU,
+                              xbmcgui.ACTION_NAV_BACK):
             self.result = None
             self.doClose()
             return
-        if action_id in (xbmcgui.ACTION_MOVE_UP, xbmcgui.ACTION_MOVE_DOWN,
-                         xbmcgui.ACTION_MOVE_RIGHT):
-            # Fallback for moves the skin cannot express statically: the
-            # buttons visible in the rail differ between dialog modes
-            target = _rail_focus_target(self._visible_rail_ids(),
-                                        self.getFocusId(), action_id)
-            if target:
-                self.setFocusId(target)
-                return
         kodigui.BaseDialog.onAction(self, action)
 
 

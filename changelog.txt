@@ -1,3 +1,12 @@
+version 3.16.6 (multi-server fork):
+- Fix keyboard navigation in the selection dialog jumping two buttons per
+  key press: the python onAction hook runs BEFORE Kodi's built-in control
+  navigation, so the focus-move fallback double-appplied every direction.
+  All rail navigation now lives in the skin's navigation tags (with
+  wrap-around at both ends); targets hidden in the current dialog mode
+  are simply not focused, which handles every mode without any python
+  involvement
+
 version 3.16.5 (multi-server fork):
 - Remove the "Current Plex server", "Server address" and "Server port"
   status rows from the Connection settings: they only ever mirrored the
