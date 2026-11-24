@@ -505,6 +505,25 @@ class InitialSetup(object):
                 etree.SubElement(source, 'allowsharing').text = "true"
         return changed
 
+    @staticmethod
+    def _remove_masterlock_hack(root):
+        """
+        Remove the dummy sources the masterlock hack added.
+
+        Returns True when something was removed.
+        """
+        removed = False
+        for source in list(root.findall('source')):
+            name = source.find('name')
+            path = source.find('path')
+            if name is None or path is None:
+                continue
+            if (name.text == "PlexKodiConnect Masterlock Hack" and
+                    (path.text or '') in ('smb://', 'nfs://', 'plugin://')):
+                root.remove(source)
+                removed = True
+        return removed
+
     def setup(self):
         """
         Initial setup. Run once upon startup.
@@ -554,18 +573,27 @@ class InitialSetup(object):
         LOG.info('Current Kodi video memory cache in bytes: %s', cache)
         utils.settings('kodi_video_cache', value=cache)
 
-        # Hack to make PKC Kodi master lock compatible
+        # Hack to make PKC Kodi master lock compatible: empty dummy sources
+        # kept Kodi from hiding PKC's library entries when masterlock was
+        # active. The Kodi bug was fixed in Kodi 19.4; on newer Kodi the
+        # dummies only cause mount errors at start-up. Remove them there.
         try:
             with utils.XmlKodiSetting('sources.xml',
                                       force_create=True,
                                       top_element='sources') as xml:
-                changed = False
-                for extension in ('smb://', 'nfs://', 'plugin://'):
-                    root = xml.set_setting(['video'])
-                    changed = self._add_sources(root, extension) or changed
-                if changed:
-                    xml.write_xml = True
-                    reboot = True
+                root = xml.set_setting(['video'])
+                if v.KODIVERSION >= 20:
+                    if self._remove_masterlock_hack(root):
+                        LOG.info('Removed obsolete masterlock dummy sources')
+                        xml.write_xml = True
+                else:
+                    changed = False
+                    for extension in ('smb://', 'nfs://', 'plugin://'):
+                        changed = self._add_sources(root, extension) \
+                            or changed
+                    if changed:
+                        xml.write_xml = True
+                        reboot = True
         except utils.ParseError:
             pass
 

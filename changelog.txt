@@ -1,3 +1,18 @@
+version 3.16.9 (multi-server fork):
+- Fix Python SyntaxWarnings at Kodi startup (invalid escape sequences in
+  two docstrings) and sweep the codebase for any others
+- Seed Kodi's video library only when the system library is available,
+  so the module - and with it the full test suite - imports cleanly
+  outside of Kodi as well
+- Probe a server's remote connection first when plex.tv reports it as
+  not being on the local network; its local addresses are the server's
+  own (Docker bridges, foreign LANs) and only waste probe timeouts
+- Stop writing the "masterlock hack" dummy sources (empty smb://, nfs://,
+  plugin:// entries) that Kodi 19.4+ no longer needs - they only caused
+  mount errors at start-up; existing dummy entries are removed on Kodi
+  20 or newer
+- Refresh the stale add-on "news" shown in Kodi's add-on information
+
 version 3.16.8 (multi-server fork):
 - Actually fix the 401 Unauthorized against a second, shared Plex server:
   the previous token fix never reached the download layer, which kept

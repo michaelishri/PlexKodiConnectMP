@@ -229,13 +229,26 @@ class TestDiscovery(unittest.TestCase):
     ''' % int(time.time()))
 
     def test_probe_picker_takes_one_local_and_one_remote(self):
+        # Non-local server (publicAddressMatches != '1'): remote first,
+        # because the local addresses are the server's own (Docker bridges,
+        # foreign LANs)
         device = self._SHARED_XML.find('Device')
         connections = PF._pick_probe_connections(device)
-        self.assertEqual(len(connections), 2)
-        self.assertEqual(connections[0].get('uri'),
-                         'https://192-168-129-99.aaa.plex.direct:32400')
-        self.assertEqual(connections[1].get('uri'),
-                         'https://101-100-151-87.aaa.plex.direct:39452')
+        self.assertEqual([connection.get('uri') for connection in connections],
+                         ['https://101-100-151-87.aaa.plex.direct:39452',
+                          'https://192-168-129-99.aaa.plex.direct:32400'])
+
+    def test_probe_picker_local_server_probes_local_first(self):
+        # Same shape, but plex.tv says the server is on our LAN
+        xml_text = ET.tostring(self._SHARED_XML).decode('utf-8').replace(
+            '<Device name="Kaituku" provides="server" clientIdentifier="kait"',
+            '<Device name="Kaituku" provides="server" clientIdentifier="kait" '
+            'publicAddressMatches="1"')
+        device = ET.fromstring(xml_text).find('Device')
+        connections = PF._pick_probe_connections(device)
+        self.assertEqual([connection.get('uri') for connection in connections],
+                         ['https://192-168-129-99.aaa.plex.direct:32400',
+                          'https://101-100-151-87.aaa.plex.direct:39452'])
 
     def test_probe_picker_takes_one_per_kind(self):
         device = ET.fromstring('''
@@ -328,6 +341,41 @@ class TestSettingsLayout(unittest.TestCase):
                              './dependencies/dependency[@type="visible"]'
                              '/condition'))
             self.assertTrue(hidden, '%s must be hidden' % setting_id)
+
+
+class TestMasterlockHackCleanup(unittest.TestCase):
+
+    def test_removes_only_pkc_dummy_sources(self):
+        # The dummy sources worked around a Kodi masterlock bug that Kodi
+        # 19.4 fixed; on Kodi 20+ they only cause mount errors at startup
+        from resources.lib import initialsetup
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring('''
+          <video>
+            <source>
+              <name>PlexKodiConnect Masterlock Hack</name>
+              <path pathversion="1">nfs://</path>
+              <allowsharing>true</allowsharing>
+            </source>
+            <source>
+              <name>PlexKodiConnect Masterlock Hack</name>
+              <path pathversion="1">smb://</path>
+              <allowsharing>true</allowsharing>
+            </source>
+            <source>
+              <name>My Movies</name>
+              <path pathversion="1">smb://nas/movies</path>
+              <allowsharing>true</allowsharing>
+            </source>
+          </video>''')
+        self.assertTrue(
+            initialsetup.InitialSetup._remove_masterlock_hack(root))
+        self.assertEqual([source.find('name').text
+                          for source in root.findall('source')],
+                         ['My Movies'])
+        # Idempotent
+        self.assertFalse(
+            initialsetup.InitialSetup._remove_masterlock_hack(root))
 
 
 if __name__ == '__main__':

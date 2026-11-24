@@ -18,7 +18,9 @@ BATCH_SIZE = 500
 SHOULD_CANCEL = None
 
 LIBRARY_PATH = path_ops.translate_path('special://profile/library/video/')
-# The video library might not yet exist for this user - create it
+# The video library might not yet exist for this user - create it by seeding
+# it from Kodi's system library. Only available inside a running Kodi; tests
+# import this module outside of Kodi, where the source simply does not exist.
 if not path_ops.exists(LIBRARY_PATH):
     try:
         path_ops.copytree(
@@ -27,6 +29,8 @@ if not path_ops.exists(LIBRARY_PATH):
             copy_function=path_ops.shutil.copyfile)
     except FileExistsError:
         LOG.warn('special://profile/library/video/ existed already')
+    except (OSError, IOError) as error:
+        LOG.debug('Could not seed the video library: %s', error)
 PLAYLISTS_PATH = path_ops.translate_path("special://profile/playlists/video/")
 if not path_ops.exists(PLAYLISTS_PATH):
     path_ops.makedirs(PLAYLISTS_PATH)

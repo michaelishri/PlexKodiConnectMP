@@ -348,10 +348,17 @@ def _pick_probe_connections(device):
     taking two of the same kind hides reachable servers (regression:
     a server with 5 unreachable local addresses and a working public one
     was silently dropped).
+
+    Servers that plex.tv reports as not being on our LAN
+    (publicAddressMatches != '1') get their remote connection probed
+    first: their local addresses are the server's own (Docker bridges,
+    foreign LANs) and only waste probe timeouts.
     """
+    wants_local_first = device.get('publicAddressMatches') == '1'
     connections = []
     seen_uris = set()
-    for wants_local in (True, False):
+    for wants_local in ((True, False) if wants_local_first
+                        else (False, True)):
         for connection in device.findall('Connection'):
             if (connection.get('local') == '1') != wants_local:
                 continue
