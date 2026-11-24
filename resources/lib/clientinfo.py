@@ -44,8 +44,15 @@ def getXArgsDeviceInfo(options=None, include_token=True):
         'X-Plex-Protocol': '1.0',
         'Cache-Control': 'no-cache'
     }
-    if include_token and utils.window('pms_token'):
-        xargs['X-Plex-Token'] = utils.window('pms_token')
+    if include_token:
+        # The context-aware token resolves per server (see
+        # Account.pms_token); fall back to the window property during
+        # early start-up, before app.ACCOUNT exists
+        from . import app
+        token = app.ACCOUNT.pms_token if app.ACCOUNT is not None \
+            else utils.window('pms_token')
+        if token:
+            xargs['X-Plex-Token'] = token
     if options is not None:
         xargs.update(options)
     return xargs

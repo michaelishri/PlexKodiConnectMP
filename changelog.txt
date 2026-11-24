@@ -1,3 +1,11 @@
+version 3.16.8 (multi-server fork):
+- Actually fix the 401 Unauthorized against a second, shared Plex server:
+  the previous token fix never reached the download layer, which kept
+  sending the token frozen into the request session at start-up (the
+  primary server's). Requests now carry the token of the server in the
+  current context, and unauthenticated helper headers resolve it the
+  same way
+
 version 3.16.7 (multi-server fork):
 - Fix "HTTP 401 Unauthorized" when setting up a second, shared Plex
   server: requests for any server other than the primary were sent the

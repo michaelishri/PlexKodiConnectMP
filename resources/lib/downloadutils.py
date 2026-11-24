@@ -139,6 +139,17 @@ class DownloadUtils(object):
                 s = self.s
             # Replace for the real values
             url = url.replace("{server}", app.CONN.server)
+            if headerOptions is None:
+                # The session's default headers still carry the token of
+                # the server that was current when the session started.
+                # Present the token of the server in the CURRENT context
+                # instead: shared servers reject other servers' tokens
+                # with 401. Thread-safe: only this request's headers copy
+                # is changed, never the shared session.
+                token = app.ACCOUNT.pms_token
+                if token:
+                    kwargs['headers'] = dict(s.headers)
+                    kwargs['headers']['X-Plex-Token'] = token
         else:
             # User is not (yet) authenticated. Used to communicate with
             # plex.tv and to check for PMS servers
