@@ -143,6 +143,11 @@ class TestSelectDialogSkin(unittest.TestCase):
         self.assertEqual(xml.count('<width>260</width>'), 5)
         # The list makes room for the rail
         self.assertIn('<width>620</width>', xml)
+        # Done and Cancel anchor to the bottom of the rail, Done last
+        done_block = xml[xml.index('type="button" id="1001"'):]
+        cancel_block = xml[xml.index('type="button" id="1002"'):]
+        self.assertIn('<posy>576</posy>', done_block[:done_block.index('</control>')])
+        self.assertIn('<posy>506</posy>', cancel_block[:cancel_block.index('</control>')])
 
     def test_select_libraries_command_calls_a_real_method(self):
         path = os.path.join(ROOT, 'resources', 'lib', 'service_entry.py')

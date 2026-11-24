@@ -1,3 +1,7 @@
+version 3.16.2 (multi-server fork):
+- Anchor the Done and Cancel buttons to the bottom of the selection dialog
+  button rail, with Done as the bottom-most button
+
 version 3.16.1 (multi-server fork):
 - Stack the selection dialog buttons vertically in a rail on the right
   instead of cramming them into one bottom row - labels like "Set primary"

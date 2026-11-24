@@ -240,7 +240,7 @@
             </control>
             <control type="button" id="1001">
                 <posx>680</posx>
-                <posy>340</posy>
+                <posy>576</posy>
                 <width>260</width>
                 <height>54</height>
                 <font>font14</font>
@@ -255,7 +255,7 @@
             </control>
             <control type="button" id="1002">
                 <posx>680</posx>
-                <posy>410</posy>
+                <posy>506</posy>
                 <width>260</width>
                 <height>54</height>
                 <font>font14</font>
