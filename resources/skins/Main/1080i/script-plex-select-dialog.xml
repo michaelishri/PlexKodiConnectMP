@@ -67,20 +67,20 @@
             <control type="list" id="100">
                 <posx>40</posx>
                 <posy>130</posy>
-                <width>920</width>
+                <width>620</width>
                 <height>500</height>
                 <itemlayout height="60">
                     <control type="image">
                         <posx>0</posx>
                         <posy>0</posy>
-                        <width>920</width>
+                        <width>620</width>
                         <height>59</height>
                         <texture colordiffuse="661F1F1F">plugin.video.plexkodiconnect/white-square.png</texture>
                     </control>
                     <control type="label">
                         <posx>24</posx>
                         <posy>0</posy>
-                        <width>820</width>
+                        <width>516</width>
                         <height>60</height>
                         <font>font14</font>
                         <align>left</align>
@@ -92,7 +92,7 @@
                     <control type="label">
                         <posx>24</posx>
                         <posy>3</posy>
-                        <width>820</width>
+                        <width>516</width>
                         <height>32</height>
                         <font>font14</font>
                         <align>left</align>
@@ -104,7 +104,7 @@
                     <control type="label">
                         <posx>24</posx>
                         <posy>34</posy>
-                        <width>820</width>
+                        <width>516</width>
                         <height>24</height>
                         <font>font12</font>
                         <align>left</align>
@@ -114,7 +114,7 @@
                         <visible>!String.IsEmpty(ListItem.Label2)</visible>
                     </control>
                     <control type="image">
-                        <posx>860</posx>
+                        <posx>560</posx>
                         <posy>7</posy>
                         <width>46</width>
                         <height>46</height>
@@ -122,7 +122,7 @@
                         <visible>!String.IsEmpty(ListItem.Property(checkbox))</visible>
                     </control>
                     <control type="image">
-                        <posx>860</posx>
+                        <posx>560</posx>
                         <posy>7</posy>
                         <width>46</width>
                         <height>46</height>
@@ -134,14 +134,14 @@
                     <control type="image">
                         <posx>0</posx>
                         <posy>0</posy>
-                        <width>920</width>
+                        <width>620</width>
                         <height>59</height>
                         <texture colordiffuse="FFE5A00D">plugin.video.plexkodiconnect/white-square.png</texture>
                     </control>
                     <control type="label">
                         <posx>24</posx>
                         <posy>0</posy>
-                        <width>820</width>
+                        <width>516</width>
                         <height>60</height>
                         <font>font14</font>
                         <align>left</align>
@@ -153,7 +153,7 @@
                     <control type="label">
                         <posx>24</posx>
                         <posy>3</posy>
-                        <width>820</width>
+                        <width>516</width>
                         <height>32</height>
                         <font>font14</font>
                         <align>left</align>
@@ -165,7 +165,7 @@
                     <control type="label">
                         <posx>24</posx>
                         <posy>34</posy>
-                        <width>820</width>
+                        <width>516</width>
                         <height>24</height>
                         <font>font12</font>
                         <align>left</align>
@@ -175,7 +175,7 @@
                         <visible>!String.IsEmpty(ListItem.Label2)</visible>
                     </control>
                     <control type="image">
-                        <posx>860</posx>
+                        <posx>560</posx>
                         <posy>7</posy>
                         <width>46</width>
                         <height>46</height>
@@ -183,7 +183,7 @@
                         <visible>!String.IsEmpty(ListItem.Property(checkbox))</visible>
                     </control>
                     <control type="image">
-                        <posx>860</posx>
+                        <posx>560</posx>
                         <posy>7</posy>
                         <width>46</width>
                         <height>46</height>
@@ -194,11 +194,11 @@
             </control>
 
             <control type="button" id="1003">
-                <posx>48</posx>
-                <posy>648</posy>
-                <width>170</width>
-                <height>50</height>
-                <font>font13</font>
+                <posx>680</posx>
+                <posy>130</posy>
+                <width>260</width>
+                <height>54</height>
+                <font>font14</font>
                 <align>center</align>
                 <aligny>center</aligny>
                 <label>$INFO[Window.Property(button1label)]</label>
@@ -209,11 +209,11 @@
                 <textcolordisabled>FF808080</textcolordisabled>
             </control>
             <control type="button" id="1004">
-                <posx>234</posx>
-                <posy>648</posy>
-                <width>170</width>
-                <height>50</height>
-                <font>font13</font>
+                <posx>680</posx>
+                <posy>200</posy>
+                <width>260</width>
+                <height>54</height>
+                <font>font14</font>
                 <align>center</align>
                 <aligny>center</aligny>
                 <label>$INFO[Window.Property(button2label)]</label>
@@ -224,11 +224,11 @@
                 <textcolordisabled>FF808080</textcolordisabled>
             </control>
             <control type="button" id="1005">
-                <posx>420</posx>
-                <posy>648</posy>
-                <width>170</width>
-                <height>50</height>
-                <font>font13</font>
+                <posx>680</posx>
+                <posy>270</posy>
+                <width>260</width>
+                <height>54</height>
+                <font>font14</font>
                 <align>center</align>
                 <aligny>center</aligny>
                 <label>$INFO[Window.Property(button3label)]</label>
@@ -239,11 +239,11 @@
                 <textcolordisabled>FF808080</textcolordisabled>
             </control>
             <control type="button" id="1001">
-                <posx>606</posx>
-                <posy>648</posy>
-                <width>170</width>
-                <height>50</height>
-                <font>font13</font>
+                <posx>680</posx>
+                <posy>340</posy>
+                <width>260</width>
+                <height>54</height>
+                <font>font14</font>
                 <align>center</align>
                 <aligny>center</aligny>
                 <label>$INFO[Window.Property(oklabel)]</label>
@@ -254,11 +254,11 @@
                 <textcolordisabled>FF808080</textcolordisabled>
             </control>
             <control type="button" id="1002">
-                <posx>792</posx>
-                <posy>648</posy>
-                <width>160</width>
-                <height>50</height>
-                <font>font13</font>
+                <posx>680</posx>
+                <posy>410</posy>
+                <width>260</width>
+                <height>54</height>
+                <font>font14</font>
                 <align>center</align>
                 <aligny>center</aligny>
                 <label>222</label>

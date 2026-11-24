@@ -147,9 +147,9 @@ def _manage_entries():
         offline = not details.get('presence', False)
         label2 = details.get('baseURL') or details.get('ip') or ''
         if offline:
-            # "(offline)"
-            label2 = '%s (%s)' % (label2, utils.lang(39968)) if label2 \
-                else '(%s)' % utils.lang(39968)
+            # "(offline)" goes first so it stays visible even when the
+            # address is too long for the row
+            label2 = '(%s) %s' % (utils.lang(39968), label2)
         entries.append({
             'mid': machine_identifier,
             'label': details.get('name') or machine_identifier,

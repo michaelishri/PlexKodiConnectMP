@@ -78,9 +78,10 @@ class TestServerManager(unittest.TestCase):
         self.assertEqual(options[0]['label'], 'Jason [primary]')
         self.assertIn('10.0.0.1', options[0]['label2'])
         self.assertEqual(options[1]['label'], 'Far')
-        # Offline servers are annotated instead of being silently dropped
+        # Offline servers are annotated instead of being silently dropped,
+        # with the tag leading so it survives a truncated address
         self.assertIn('https://far:32400', options[1]['label2'])
-        self.assertNotEqual(options[1]['label2'], 'https://far:32400')
+        self.assertTrue(options[1]['label2'].endswith('https://far:32400'))
         # Only the enabled configured server is pre-checked
         self.assertEqual(captured['selected'], [0])
         self.assertIsNone(captured['subtitle'])

@@ -1,3 +1,10 @@
+version 3.16.1 (multi-server fork):
+- Stack the selection dialog buttons vertically in a rail on the right
+  instead of cramming them into one bottom row - labels like "Set primary"
+  and "Remove server" now fit without ellipses on the server manager
+- Move the "(offline)" tag to the front of a server's address so it stays
+  visible when the address is too long for the row
+
 version 3.16.0 (multi-server fork):
 - Redesign "Add, remove or enable Plex servers" into one coherent dialog:
   every server the Plex account can access is listed, checkboxes toggle

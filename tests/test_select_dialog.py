@@ -137,6 +137,12 @@ class TestSelectDialogSkin(unittest.TestCase):
             self.assertIn('Window.Property(%s)' % number, xml)
         # Second line per row
         self.assertIn('ListItem.Label2', xml)
+        # Buttons are stacked in a right-hand rail, all sharing one x
+        # position, with room for their full labels (no ellipses)
+        self.assertEqual(xml.count('<posx>680</posx>'), 5)
+        self.assertEqual(xml.count('<width>260</width>'), 5)
+        # The list makes room for the rail
+        self.assertIn('<width>620</width>', xml)
 
     def test_select_libraries_command_calls_a_real_method(self):
         path = os.path.join(ROOT, 'resources', 'lib', 'service_entry.py')
