@@ -53,6 +53,22 @@ official PKC add-on profile if one exists.
 To build the repository locally: `python3 scripts/build_repo.py`. Output is
 written to `build/pages`. Run the tests with `python3 tests/run_all.py`.
 
+#### Current state of the fork (3.16.9)
+
+- **Multiple Plex servers, one Kodi**: enable/disable servers for sync
+  individually and pick libraries once for all of them; overlapping
+  content is deduplicated across servers. Shared (not owned) servers are
+  supported, including their own per-server access tokens.
+- **One server manager dialog** ("Add, remove or enable Plex servers"):
+  every server the Plex account can access is listed — configured ones
+  with a sync checkbox, plex.tv ones ready to add by checking them,
+  unreachable ones tagged `(offline)`. Footer buttons set the primary,
+  remove, or add a server manually; fully keyboard navigable.
+- **Overhauled settings** (3.15+): categories follow the setup flow,
+  confusing labels were rewritten, every setting has an explanatory help
+  text, and settings that did nothing in this fork were removed.
+- See `changelog.txt` for the complete history of the fork.
+
 ### Warning
 Use at your own risk! This plugin assumes that you manage all your videos with Plex (and none with Kodi). You might lose data already stored in the Kodi video and music databases as this plugin directly changes them. Don't worry if you want Plex to manage all your media (like you should ;-)). 
 
