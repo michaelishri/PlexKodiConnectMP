@@ -19,52 +19,7 @@
         <!-- CONNECTION                                                    -->
         <!-- ============================================================= -->
         <category id="connection" label="30014" help=""> <!-- Connection -->
-            <group id="1" label="39735"> <!-- Plex Media Server -->
-                <setting id="plex_servername" type="string" label="39761" help="39859"> <!-- Current Plex server -->
-                    <level>0</level>
-                    <default />
-                    <constraints>
-                        <allowempty>true</allowempty>
-                    </constraints>
-                    <dependencies>
-                        <dependency type="enable">
-                            <condition on="property" name="InfoBool">false</condition>
-                        </dependency>
-                    </dependencies>
-                    <control type="edit" format="string">
-                        <heading>39761</heading>
-                    </control>
-                </setting>
-                <setting id="ipaddress" type="string" label="39762" help="39860"> <!-- Server address -->
-                    <level>0</level>
-                    <default />
-                    <constraints>
-                        <allowempty>true</allowempty>
-                    </constraints>
-                    <dependencies>
-                        <dependency type="enable">
-                            <condition on="property" name="InfoBool">false</condition>
-                        </dependency>
-                    </dependencies>
-                    <control type="edit" format="string">
-                        <heading>39762</heading>
-                    </control>
-                </setting>
-                <setting id="port" type="string" label="39763" help="39861"> <!-- Server port -->
-                    <level>0</level>
-                    <default />
-                    <constraints>
-                        <allowempty>true</allowempty>
-                    </constraints>
-                    <dependencies>
-                        <dependency type="enable">
-                            <condition on="property" name="InfoBool">false</condition>
-                        </dependency>
-                    </dependencies>
-                    <control type="edit" format="string">
-                        <heading>39763</heading>
-                    </control>
-                </setting>
+            <group id="1">
                 <setting id="mpskdxqzvjbhflcrtawygunieo" type="action" label="39764" help="39862">
                     <!-- Add, remove or enable Plex servers -->
                     <level>0</level>
@@ -109,7 +64,55 @@
                     <control type="toggle" />
                 </setting>
             </group>
-            <group id="3"> <!-- Internal settings, written by PKC -->
+            <group id="3"> <!-- Internal settings, written by PKC.
+                 plex_servername/ipaddress/port mirror the primary server and
+                 seed the server registry; they are shown in the server
+                 manager, not as single-server status rows. -->
+                <setting id="plex_servername" type="string" label="39761" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39761</heading>
+                    </control>
+                </setting>
+                <setting id="ipaddress" type="string" label="39762" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39762</heading>
+                    </control>
+                </setting>
+                <setting id="port" type="string" label="39763" help="">
+                    <level>0</level>
+                    <default />
+                    <constraints>
+                        <allowempty>true</allowempty>
+                    </constraints>
+                    <dependencies>
+                        <dependency type="visible">
+                            <condition on="property" name="InfoBool">false</condition>
+                        </dependency>
+                    </dependencies>
+                    <control type="edit" format="string">
+                        <heading>39763</heading>
+                    </control>
+                </setting>
                 <setting id="accessToken" type="string" help="">
                     <level>0</level>
                     <default />

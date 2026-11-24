@@ -1,3 +1,10 @@
+version 3.16.5 (multi-server fork):
+- Remove the "Current Plex server", "Server address" and "Server port"
+  status rows from the Connection settings: they only ever mirrored the
+  primary server and were misleading when several servers are configured.
+  The server manager shows every configured server with its address; the
+  underlying settings remain as hidden internal storage
+
 version 3.16.4 (multi-server fork):
 - Fix shared Plex servers missing from the server manager: the connection
   picker grabbed the first two LOCAL addresses instead of one local and

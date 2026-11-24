@@ -301,5 +301,34 @@ class TestDiscovery(unittest.TestCase):
         self.assertEqual(server['baseURL'], 'https://1.2.3.4:32400')
 
 
+class TestSettingsLayout(unittest.TestCase):
+
+    def test_connection_status_rows_are_hidden(self):
+        # "Current Plex server / Server address / Server port" only mirrored
+        # the PRIMARY server and were misleading when several servers are
+        # configured. The server manager shows every server; the settings
+        # survive as hidden internal storage.
+        import xml.etree.ElementTree as ET
+        tree = ET.parse(os.path.join(ROOT, 'resources', 'settings.xml'))
+        category = [entry for entry in tree.getroot().iter('category')
+                    if entry.get('id') == 'connection'][0]
+        groups = category.findall('group')
+        # The first group offers only the server manager button
+        first = groups[0].findall('setting')
+        self.assertEqual(len(first), 1)
+        self.assertEqual(first[0].get('type'), 'action')
+        # The former status rows are hidden, internal storage now
+        for setting_id in ('plex_servername', 'ipaddress', 'port'):
+            setting = [entry for entry in category.iter('setting')
+                       if entry.get('id') == setting_id]
+            self.assertEqual(len(setting), 1, setting_id)
+            hidden = any(condition.get('name') == 'InfoBool' and
+                         (condition.text or '').strip() == 'false'
+                         for condition in setting[0].findall(
+                             './dependencies/dependency[@type="visible"]'
+                             '/condition'))
+            self.assertTrue(hidden, '%s must be hidden' % setting_id)
+
+
 if __name__ == '__main__':
     unittest.main(verbosity=2)
