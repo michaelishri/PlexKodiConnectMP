@@ -246,6 +246,10 @@ def install():
     xbmcgui.ListItem = FakeListItem
     xbmcgui.ACTION_PREVIOUS_MENU = 10
     xbmcgui.ACTION_NAV_BACK = 92
+    xbmcgui.ACTION_MOVE_UP = 1
+    xbmcgui.ACTION_MOVE_DOWN = 2
+    xbmcgui.ACTION_MOVE_LEFT = 3
+    xbmcgui.ACTION_MOVE_RIGHT = 4
 
     xbmcvfs = types.ModuleType('xbmcvfs')
     xbmcvfs.translatePath = lambda path: path.replace(

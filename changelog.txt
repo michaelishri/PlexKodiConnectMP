@@ -1,3 +1,10 @@
+version 3.16.3 (multi-server fork):
+- Make the selection dialog fully keyboard/remote navigable: explicit
+  navigation tags move focus between the list and the button rail, a
+  python fallback handles the hops that depend on which buttons are
+  visible, and the dialog opens with focus on the list instead of a
+  button that may be hidden in the current mode
+
 version 3.16.2 (multi-server fork):
 - Anchor the Done and Cancel buttons to the bottom of the selection dialog
   button rail, with Done as the bottom-most button

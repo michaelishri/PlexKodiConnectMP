@@ -112,12 +112,73 @@ class TestSelectDialogHelpers(unittest.TestCase):
         self.assertEqual(items[1].properties['checkbox'], '1')
 
 
+class TestRailNavigation(unittest.TestCase):
+    """Keyboard/remote navigation fallback for the button rail."""
+
+    MANAGE = [1003, 1004, 1005, 1002, 1001]
+    MULTI_ONLY = [1002, 1001]
+    SINGLE_ONLY = [1002]
+
+    def test_right_from_list_enters_rail_at_the_top(self):
+        for rail in (self.MANAGE, self.MULTI_ONLY, self.SINGLE_ONLY):
+            self.assertEqual(
+                selectdialog._rail_focus_target(
+                    rail, 100, selectdialog.xbmcgui.ACTION_MOVE_RIGHT),
+                rail[0])
+
+    def test_down_walks_the_rail(self):
+        self.assertEqual(
+            selectdialog._rail_focus_target(
+                self.MANAGE, 1003, selectdialog.xbmcgui.ACTION_MOVE_DOWN),
+            1004)
+        self.assertEqual(
+            selectdialog._rail_focus_target(
+                self.MANAGE, 1005, selectdialog.xbmcgui.ACTION_MOVE_DOWN),
+            1002)
+        self.assertEqual(
+            selectdialog._rail_focus_target(
+                self.MULTI_ONLY, 1002, selectdialog.xbmcgui.ACTION_MOVE_DOWN),
+            1001)
+
+    def test_down_at_the_bottom_stays(self):
+        self.assertIsNone(selectdialog._rail_focus_target(
+            self.MANAGE, 1001, selectdialog.xbmcgui.ACTION_MOVE_DOWN))
+        self.assertIsNone(selectdialog._rail_focus_target(
+            self.SINGLE_ONLY, 1002, selectdialog.xbmcgui.ACTION_MOVE_DOWN))
+
+    def test_up_walks_the_rail_and_hands_back_to_the_list(self):
+        self.assertEqual(
+            selectdialog._rail_focus_target(
+                self.MANAGE, 1005, selectdialog.xbmcgui.ACTION_MOVE_UP),
+            1004)
+        self.assertEqual(
+            selectdialog._rail_focus_target(
+                self.MANAGE, 1002, selectdialog.xbmcgui.ACTION_MOVE_UP),
+            1005)
+        # Top of the rail goes back to the list, in every mode
+        for rail in (self.MANAGE, self.MULTI_ONLY, self.SINGLE_ONLY):
+            self.assertEqual(
+                selectdialog._rail_focus_target(
+                    rail, rail[0], selectdialog.xbmcgui.ACTION_MOVE_UP),
+                100)
+
+    def test_unrelated_focus_and_actions_are_ignored(self):
+        self.assertIsNone(selectdialog._rail_focus_target(
+            self.MANAGE, 100, selectdialog.xbmcgui.ACTION_MOVE_UP))
+        self.assertIsNone(selectdialog._rail_focus_target(
+            self.MANAGE, 999, selectdialog.xbmcgui.ACTION_MOVE_DOWN))
+        self.assertIsNone(selectdialog._rail_focus_target(
+            self.MANAGE, 1002, selectdialog.xbmcgui.ACTION_MOVE_LEFT))
+        self.assertIsNone(selectdialog._rail_focus_target(
+            [], 100, selectdialog.xbmcgui.ACTION_MOVE_RIGHT))
+
+
 class TestSelectDialogSkin(unittest.TestCase):
 
     def test_skin_has_visible_checkbox_per_row(self):
         with open(SKIN, encoding='utf-8') as handle:
             xml = handle.read()
-        self.assertIn('<defaultcontrol>1001</defaultcontrol>', xml)
+        self.assertIn('<defaultcontrol>100</defaultcontrol>', xml)
         self.assertIn('type="list" id="100"', xml)
         self.assertIn('ListItem.Property(checkbox)', xml)
         self.assertIn('ListItem.Property(checked)', xml)
@@ -148,6 +209,24 @@ class TestSelectDialogSkin(unittest.TestCase):
         cancel_block = xml[xml.index('type="button" id="1002"'):]
         self.assertIn('<posy>576</posy>', done_block[:done_block.index('</control>')])
         self.assertIn('<posy>506</posy>', cancel_block[:cancel_block.index('</control>')])
+
+    def test_skin_declares_button_navigation(self):
+        with open(SKIN, encoding='utf-8') as handle:
+            xml = handle.read()
+        # Every button hands focus back to the list on Left
+        self.assertEqual(xml.count('<onleft>100</onleft>'), 5)
+        # Static hops inside the rail where both ends are always
+        # visible together; the dynamic hops fall back to python
+        self.assertIn('<ondown>1004</ondown>', xml)
+        self.assertIn('<onup>1003</onup>', xml)
+        self.assertIn('<ondown>1005</ondown>', xml)
+        self.assertIn('<onup>1004</onup>', xml)
+        self.assertIn('<ondown>1002</ondown>', xml)
+        done_block = xml[xml.index('type="button" id="1001"'):]
+        self.assertIn('<onup>1002</onup>',
+                      done_block[:done_block.index('</control>')])
+        self.assertIn('<ondown>1002</ondown>',
+                      done_block[:done_block.index('</control>')])
 
     def test_select_libraries_command_calls_a_real_method(self):
         path = os.path.join(ROOT, 'resources', 'lib', 'service_entry.py')
