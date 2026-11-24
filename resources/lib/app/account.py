@@ -44,6 +44,14 @@ class Account(object):
         server_id = self.current_server_id
         if server_id in self.pms_tokens:
             return self.pms_tokens[server_id]
+        # Servers other than the primary keep their own token in the
+        # registry - e.g. the per-server token plex.tv issues for shared
+        # servers. Without this lookup every non-primary server was sent
+        # the primary's token, which shared servers answer with 401.
+        if app.CONN is not None and server_id is not None:
+            server = app.CONN.get_server(server_id)
+            if server is not None and server.token:
+                return server.token
         if app.CONN is not None and app.CONN.registry.primary_id in self.pms_tokens:
             return self.pms_tokens[app.CONN.registry.primary_id]
         return self.pms_tokens.get(None)

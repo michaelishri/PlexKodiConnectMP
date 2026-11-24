@@ -1,3 +1,11 @@
+version 3.16.7 (multi-server fork):
+- Fix "HTTP 401 Unauthorized" when setting up a second, shared Plex
+  server: requests for any server other than the primary were sent the
+  primary server's token because only that one was ever cached at
+  runtime. The active server's own token, stored in the server registry
+  at add time, is now used - which is what shared servers like
+  "Kaituku 8.0" require
+
 version 3.16.6 (multi-server fork):
 - Fix keyboard navigation in the selection dialog jumping two buttons per
   key press: the python onAction hook runs BEFORE Kodi's built-in control

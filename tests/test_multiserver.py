@@ -129,6 +129,21 @@ class TestConnectionContext(unittest.TestCase):
             self.assertEqual(app.ACCOUNT.pms_token, 'token-B')
         self.assertEqual(app.ACCOUNT.pms_token, 'token-A')
 
+    def test_non_primary_server_token_resolves_from_registry(self):
+        # Regression: servers other than the primary were sent the primary
+        # server's token - shared servers answered that with 401. The
+        # registry holds each server's own token and must be consulted.
+        app.ACCOUNT.pms_tokens = {'server-A': 'token-A'}
+        self.assertEqual(app.ACCOUNT.pms_token, 'token-A')
+        with app.using_server('server-B'):
+            self.assertEqual(app.ACCOUNT.pms_token, 'token-B')
+        # A runtime entry set for the server still wins over the registry
+        app.ACCOUNT.pms_tokens = {'server-A': 'token-A',
+                                  'server-B': 'token-B-runtime'}
+        with app.using_server('server-B'):
+            self.assertEqual(app.ACCOUNT.pms_token, 'token-B-runtime')
+        app.ACCOUNT.pms_tokens = {'server-A': 'token-A'}
+
     def test_servers_is_a_method_on_the_connections_facade(self):
         # Regression: ServerRegistry.servers is a @property; calling it as
         # registry.servers() raised "'list' object is not callable" and killed
