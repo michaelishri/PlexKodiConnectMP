@@ -165,10 +165,11 @@ def discover_pms(token=None, include_gdm=True, force=False,
         token       token for plex.tv - WARNING: for the main Plex user only!
         include_offline
                     Also return servers that plex.tv currently reports as
-                    offline. They carry presence=False and their address is
-                    taken from plex.tv without probing. Useful when offering
-                    servers to add; the default of False preserves the old
-                    behaviour of only returning reachable servers.
+                    offline, and servers whose connections cannot be probed
+                    successfully. Both carry presence=False and the address
+                    plex.tv published for them. Useful when offering servers
+                    to add; the default of False preserves the old behaviour
+                    of only returning reachable servers.
 
     Returns a list of available PMS to connect to, one entry is the dict:
     {
@@ -336,6 +337,60 @@ def _plex_gdm():
     return pms_list
 
 
+def _pick_probe_connections(device):
+    """
+    Choose at most one local and one remote connection to probe.
+
+    plex.tv often lists many (mostly stale) addresses for a server - e.g.
+    several Docker bridge networks all marked local. Probing each of them
+    with a timeout made discovery take half a minute, so we probe at most
+    one connection of each kind. Careful to take exactly one per pass:
+    taking two of the same kind hides reachable servers (regression:
+    a server with 5 unreachable local addresses and a working public one
+    was silently dropped).
+    """
+    connections = []
+    seen_uris = set()
+    for wants_local in (True, False):
+        for connection in device.findall('Connection'):
+            if (connection.get('local') == '1') != wants_local:
+                continue
+            uri = connection.get('uri')
+            if not uri or uri in seen_uris:
+                continue
+            seen_uris.add(uri)
+            connections.append(connection)
+            break
+        if len(connections) >= 2:
+            break
+    return connections
+
+
+def _preferred_connection(connections):
+    """
+    The best connection to show for a server we could not reach: its
+    remote/public one, falling back to the first one plex.tv listed.
+    """
+    remote = [connection for connection in connections
+              if connection.get('local') != '1']
+    return remote[0] if remote else connections[0]
+
+
+def _apply_connection(pms, connection):
+    """Set pms to unreachable, with the address of one plex.tv connection."""
+    uri = (connection.get('uri') or '').strip()
+    scheme, _, hostport = uri.partition('://')
+    host, _, port = hostport.rpartition(':')
+    if not host:
+        host = hostport
+    pms['presence'] = False
+    pms['scheme'] = scheme or 'https'
+    pms['ip'] = host
+    pms['port'] = port or '32400'
+    pms['baseURL'] = uri or None
+    del pms['connections']
+
+
 def _pms_list_from_plex_tv(token, include_offline=False):
     """
     get Plex media Server List from plex.tv/pms/resources
@@ -356,6 +411,7 @@ def _pms_list_from_plex_tv(token, include_offline=False):
 
     from queue import Queue
     queue = Queue()
+    failed_queue = Queue()
     thread_queue = []
     unprobed = []
 
@@ -399,39 +455,16 @@ def _pms_list_from_plex_tv(token, include_offline=False):
         if offline:
             # Do not probe offline servers; trust plex.tv's connection data so
             # they can still be offered (and added) while unreachable
-            connection = device.find('Connection')
-            uri = (connection.get('uri') or '').strip()
-            scheme, _, hostport = uri.partition('://')
-            host, _, port = hostport.rpartition(':')
-            if not host:
-                host = hostport
-            pms['scheme'] = scheme or 'https'
-            pms['ip'] = host
-            pms['port'] = port or '32400'
-            pms['baseURL'] = uri or None
-            del pms['connections']
+            _apply_connection(
+                pms, _preferred_connection(device.findall('Connection')))
             unprobed.append(pms)
             continue
-        # Try one local and one remote connection at most. Plex.tv often
-        # reports many stale relay/Docker addresses; probing each of them with
-        # a 3s timeout made discovery take half a minute.
-        seen_uris = set()
-        for wants_local in (True, False):
-            for connection in device.findall('Connection'):
-                is_local = connection.get('local') == '1'
-                if is_local != wants_local:
-                    continue
-                uri = connection.get('uri')
-                if not uri or uri in seen_uris:
-                    continue
-                seen_uris.add(uri)
-                pms['connections'].append(connection)
-                if len(pms['connections']) >= 2:
-                    break
-            if len(pms['connections']) >= 2:
-                break
+        # Probe at most one local and one remote connection
+        pms['connections'] = _pick_probe_connections(device)
         # Spawn threads to ping each PMS simultaneously
-        thread = Thread(target=_poke_pms, args=(pms, queue))
+        thread = Thread(
+            target=_poke_pms,
+            args=(pms, queue, failed_queue if include_offline else None))
         thread_queue.append(thread)
 
     max_threads = 5
@@ -463,11 +496,26 @@ def _pms_list_from_plex_tv(token, include_offline=False):
         del pms['connections']
         pms_list.append(pms)
         queue.task_done()
+    if include_offline:
+        # Servers whose connections could not be probed: keep them in the
+        # list, marked offline, instead of silently dropping them
+        while not failed_queue.empty():
+            pms = failed_queue.get()
+            pms_list.append(pms)
+            failed_queue.task_done()
     return pms_list
 
 
-def _poke_pms(pms, queue):
-    """Try the (limited) list of connections until one answers correctly."""
+def _poke_pms(pms, queue, failed_queue=None):
+    """
+    Try the (limited) list of connections until one answers correctly.
+
+    Servers where no connection answers correctly are dropped - unless
+    failed_queue is given: then they are handed back with presence=False
+    and the address plex.tv published for them, so callers can still
+    offer them (e.g. tagged as offline in the server manager).
+    """
+    probed = list(pms['connections']) if failed_queue is not None else None
     seen = set()
     while pms['connections']:
         data = pms['connections'][0].attrib
@@ -511,6 +559,11 @@ def _poke_pms(pms, queue):
                      'and got %s', url, pms['machineIdentifier'],
                      machine_identifier)
         del pms['connections'][0]
+    if failed_queue is not None and probed:
+        # No connection answered correctly: keep the server visible with
+        # the address plex.tv knows for it
+        _apply_connection(pms, _preferred_connection(probed))
+        failed_queue.put(pms)
 
 
 

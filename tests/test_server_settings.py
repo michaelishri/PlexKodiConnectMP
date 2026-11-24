@@ -3,6 +3,7 @@
 """Tests for the simplified server settings and faster discovery."""
 import os
 import sys
+import time
 import unittest
 import xml.etree.ElementTree as ET
 
@@ -196,6 +197,81 @@ class TestDiscovery(unittest.TestCase):
         </Device>
       </MediaContainer>
     ''')
+
+    # Regression: a shared server with several unreachable local (Docker
+    # bridge) addresses and a working public one. The connection picker used
+    # to grab the first two LOCAL connections, so the reachable public one
+    # was never probed and the server silently vanished from the list.
+    _SHARED_XML = ET.fromstring('''
+      <MediaContainer>
+        <Device name="Kaituku" provides="server" clientIdentifier="kait"
+                lastSeenAt="%d" presence="1">
+          <Connection uri="https://192-168-129-99.aaa.plex.direct:32400"
+                     protocol="https" address="192.168.129.99" port="32400"
+                     local="1"/>
+          <Connection uri="https://172-18-0-1.aaa.plex.direct:32400"
+                     protocol="https" address="172.18.0.1" port="32400"
+                     local="1"/>
+          <Connection uri="https://172-19-0-1.aaa.plex.direct:32400"
+                     protocol="https" address="172.19.0.1" port="32400"
+                     local="1"/>
+          <Connection uri="https://172-20-0-1.aaa.plex.direct:32400"
+                     protocol="https" address="172.20.0.1" port="32400"
+                     local="1"/>
+          <Connection uri="https://172-17-0-1.aaa.plex.direct:32400"
+                     protocol="https" address="172.17.0.1" port="32400"
+                     local="1"/>
+          <Connection uri="https://101-100-151-87.aaa.plex.direct:39452"
+                     protocol="https" address="101.100.151.87" port="39452"
+                     local="0"/>
+        </Device>
+      </MediaContainer>
+    ''' % int(time.time()))
+
+    def test_probe_picker_takes_one_local_and_one_remote(self):
+        device = self._SHARED_XML.find('Device')
+        connections = PF._pick_probe_connections(device)
+        self.assertEqual(len(connections), 2)
+        self.assertEqual(connections[0].get('uri'),
+                         'https://192-168-129-99.aaa.plex.direct:32400')
+        self.assertEqual(connections[1].get('uri'),
+                         'https://101-100-151-87.aaa.plex.direct:39452')
+
+    def test_probe_picker_takes_one_per_kind(self):
+        device = ET.fromstring('''
+          <Device>
+            <Connection uri="https://a.example:1" local="0"/>
+            <Connection uri="https://b.example:2" local="0"/>
+          </Device>''')
+        connections = PF._pick_probe_connections(device)
+        self.assertEqual([connection.get('uri') for connection in connections],
+                         ['https://a.example:1'])
+
+    def test_unreachable_servers_are_dropped_by_default(self):
+        xml = self._SHARED_XML
+        original = PF.DU().downloadUrl
+        # Every probe fails (no matching machineIdentifier in the reply)
+        PF.DU().downloadUrl = lambda *args, **kwargs: xml
+        try:
+            self.assertEqual(PF._pms_list_from_plex_tv('token'), [])
+        finally:
+            PF.DU().downloadUrl = original
+
+    def test_unreachable_servers_kept_when_offline_included(self):
+        xml = self._SHARED_XML
+        original = PF.DU().downloadUrl
+        PF.DU().downloadUrl = lambda *args, **kwargs: xml
+        try:
+            kept = PF._pms_list_from_plex_tv('token', include_offline=True)
+        finally:
+            PF.DU().downloadUrl = original
+        self.assertEqual(len(kept), 1)
+        self.assertEqual(kept[0]['machineIdentifier'], 'kait')
+        self.assertFalse(kept[0]['presence'])
+        # Shows the public address plex.tv published, not a Docker one
+        self.assertEqual(kept[0]['baseURL'],
+                         'https://101-100-151-87.aaa.plex.direct:39452')
+        self.assertEqual(kept[0]['port'], '39452')
 
     def test_offline_servers_are_filtered_by_default(self):
         xml = self._OFFLINE_XML

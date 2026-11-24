@@ -1,3 +1,13 @@
+version 3.16.4 (multi-server fork):
+- Fix shared Plex servers missing from the server manager: the connection
+  picker grabbed the first two LOCAL addresses instead of one local and
+  one remote, so a server with several unreachable local (Docker bridge)
+  addresses and a working public one - e.g. "Kaituku 8.0" - was silently
+  dropped from discovery
+- Never silently drop servers whose connections cannot be probed when
+  offline servers are included: they now stay in the list, tagged
+  "(offline)", with the public address plex.tv published for them
+
 version 3.16.3 (multi-server fork):
 - Make the selection dialog fully keyboard/remote navigable: explicit
   navigation tags move focus between the list and the button rail, a
